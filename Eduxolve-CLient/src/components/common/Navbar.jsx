@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { BrutalButton } from '../ui'
 import { useAuthStore } from '../../store'
 import { logout } from '../../services/auth.service'
+import { useToast } from './Toast'
 
 // Use motion and AnimatePresence for animations
 const MotionHeader = motion.header
@@ -20,6 +21,7 @@ function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, role } = useAuthStore()
+  const toast = useToast()
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -62,9 +64,11 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       await logout()
+      toast.success('Logged out successfully!')
       navigate('/')
     } catch (error) {
       console.error('Logout failed:', error)
+      toast.error('Logout failed. Please try again.')
     }
   }
 

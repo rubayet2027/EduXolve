@@ -10,6 +10,7 @@ import { ChatHeader, ChatMessage, ChatInput } from '../components/chat'
 import { BrutalButton } from '../components/ui'
 import PageWrapper from '../components/common/PageWrapper'
 import FileAttachmentButton from '../components/common/FileAttachmentButton'
+import { useToast } from '../components/common'
 import { chatApi } from '../services/api'
 
 // Suggested follow-ups shown after AI messages
@@ -34,6 +35,7 @@ function Chat() {
   const [error, setError] = useState(null)
   const [attachedFile, setAttachedFile] = useState(null) // { fileId, fileName, ... }
   const messagesEndRef = useRef(null)
+  const toast = useToast()
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -124,6 +126,9 @@ function Chat() {
       // setAttachedFile(null)
     } catch (err) {
       console.error('Chat error:', err)
+      
+      // Show toast error
+      toast.error('Failed to send message. Please try again.')
       
       // Replace loading with error message
       setMessages(prev => prev.map(msg => 

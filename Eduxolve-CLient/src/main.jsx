@@ -7,6 +7,7 @@ import './index.css'
 import './styles/brutal.css'
 import App from './App.jsx'
 import { initAuthListener, cleanupAuthListener } from './services/authListener'
+import { ToastProvider } from './components/common'
 
 // Create a React Query client
 const queryClient = new QueryClient({
@@ -32,7 +33,9 @@ function Root() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </StrictMode>

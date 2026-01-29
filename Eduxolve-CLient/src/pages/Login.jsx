@@ -20,10 +20,12 @@ import { signInWithGoogle, loginWithEmail, registerWithEmail } from '../services
 import { useAuthStore } from '../store'
 import PageWrapper from '../components/common/PageWrapper'
 import Loader from '../components/common/Loader'
+import { useToast } from '../components/common'
 
 function Login() {
   const navigate = useNavigate()
   const { user, role, loading: authLoading } = useAuthStore()
+  const toast = useToast()
   
   // Form state
   const [email, setEmail] = useState('')
@@ -37,6 +39,8 @@ function Login() {
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
+      // Show success toast
+      toast.success('Welcome back!')
       // Redirect based on role
       if (role === 'admin') {
         navigate('/admin')
@@ -44,7 +48,7 @@ function Login() {
         navigate('/dashboard')
       }
     }
-  }, [user, role, authLoading, navigate])
+  }, [user, role, authLoading, navigate, toast])
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {

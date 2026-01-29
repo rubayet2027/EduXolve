@@ -17,6 +17,7 @@ import {
   IoCloudUpload
 } from 'react-icons/io5'
 import { fileApi } from '../../services/api'
+import { useToast } from './Toast'
 
 // Accepted file types
 const ACCEPT_STRING = '.pdf,.docx,.doc,.txt,.c,.cpp,.h,.hpp,.py,.js'
@@ -55,6 +56,7 @@ function FileAttachmentButton({
   disabled = false,
   className = '' 
 }) {
+  const toast = useToast()
   const [isOpen, setIsOpen] = useState(false)
   const [file, setFile] = useState(null)
   const [uploadState, setUploadState] = useState('idle') // idle, uploading, success, error
@@ -111,6 +113,7 @@ function FileAttachmentButton({
     const validation = validateFile(selectedFile)
     if (!validation.valid) {
       setError(validation.error)
+      toast.warning(validation.error)
       return
     }
     
@@ -124,6 +127,7 @@ function FileAttachmentButton({
         setUploadState('success')
         setFileData(result.data)
         onFileProcessed?.(result.data)
+        toast.success('File uploaded successfully!')
         // Auto close popup after success
         setTimeout(() => setIsOpen(false), 500)
       } else {
@@ -133,8 +137,9 @@ function FileAttachmentButton({
       console.error('File upload error:', err)
       setUploadState('error')
       setError(err.message || 'Upload failed')
+      toast.error('File upload failed. Please try again.')
     }
-  }, [onFileProcessed])
+  }, [onFileProcessed, toast])
 
   const handleInputChange = (e) => {
     const selectedFile = e.target.files?.[0]

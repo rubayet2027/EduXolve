@@ -8,10 +8,12 @@ import { IoSearch, IoInformationCircle, IoWarning } from 'react-icons/io5'
 import { BrutalButton } from '../components/ui'
 import { SearchBar, SearchResultCard, SearchSkeleton } from '../components/search'
 import PageWrapper from '../components/common/PageWrapper'
+import { useToast } from '../components/common'
 import { searchApi } from '../services/api'
 
 function Search() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [results, setResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
@@ -53,6 +55,7 @@ function Search() {
     } catch (err) {
       console.error('Search error:', err)
       setError(err.message || 'Search failed. Please try again.')
+      toast.error('Search failed. Please try again.')
       setResults([])
     } finally {
       setIsLoading(false)

@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { PromptPanel, OutputPanel } from '../components/generate'
 import PageWrapper from '../components/common/PageWrapper'
 import FileAttachmentButton from '../components/common/FileAttachmentButton'
+import { useToast } from '../components/common'
 import { aiApi, validationApi } from '../services/api'
 
 function Generate() {
@@ -20,6 +21,7 @@ function Generate() {
   const [output, setOutput] = useState(null)
   const [error, setError] = useState(null)
   const [attachedFile, setAttachedFile] = useState(null) // { fileId, fileName, ... }
+  const toast = useToast()
 
   // Map frontend content type to backend type
   const getBackendType = (type) => {
@@ -147,6 +149,9 @@ function Generate() {
         parsedOutput.rawContent = generatedContent
         parsedOutput.hasFileContext = hasFileContext
         
+        // Show success toast
+        toast.success('Content generated successfully!')
+        
         // Automatically validate after generation
         setOutput(parsedOutput)
         await handleValidate(generatedContent, backendType)
@@ -154,6 +159,7 @@ function Generate() {
     } catch (err) {
       console.error('Generation error:', err)
       setError(err.message || 'Failed to generate content. Please try again.')
+      toast.error('Failed to generate content. Please try again.')
     } finally {
       setIsLoading(false)
     }
