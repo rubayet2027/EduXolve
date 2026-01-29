@@ -30,3 +30,5 @@ build/
 
 # Coverage
 coverage/
+.vercel
+.env*.local
