@@ -15,6 +15,7 @@ import BrutalCard from '../../components/ui/BrutalCard'
 import BrutalButton from '../../components/ui/BrutalButton'
 import PageWrapper from '../../components/common/PageWrapper'
 import { ContentCard, ConfirmDialog } from '../../components/admin'
+import { SkeletonLoader } from '../../components/common/Loader'
 import { contentApi } from '../../services/api'
 
 function ManageContent() {
@@ -182,10 +183,7 @@ function ManageContent() {
           {isLoading && (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div 
-                  key={i}
-                  className="h-24 bg-gray-100 border-2 border-gray-200 rounded-2xl animate-pulse"
-                />
+                <SkeletonLoader key={i} height="h-24" />
               ))}
             </div>
           )}

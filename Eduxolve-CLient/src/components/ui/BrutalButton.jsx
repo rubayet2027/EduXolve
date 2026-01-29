@@ -7,12 +7,17 @@
  * - Large rounded corners
  * - Hover: lifts up (-2px, -2px)
  * - Press: pushes down (2px, 2px), shadow removed
+ * - Loading state with animated dots
  */
+
+import { InlineLoader } from '../common/Loader'
 
 function BrutalButton({ 
   children, 
   className = '', 
   variant = 'primary',
+  loading = false,
+  loadingText = 'Loading',
   ...props 
 }) {
   const variants = {
@@ -43,9 +48,10 @@ function BrutalButton({
         ${variants[variant] || variants.primary}
         ${className}
       `}
+      disabled={loading || props.disabled}
       {...props}
     >
-      {children}
+      {loading ? <InlineLoader text={loadingText} /> : children}
     </button>
   )
 }

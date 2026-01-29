@@ -6,6 +6,7 @@
 
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store'
+import Loader from './Loader'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, role, loading } = useAuthStore()
@@ -13,14 +14,7 @@ function ProtectedRoute({ children, requiredRole }) {
 
   // Show loading spinner while checking auth state
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FAFAF7] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#111111] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#111111]/60">Loading...</p>
-        </div>
-      </div>
-    )
+    return <Loader message="Checking authentication..." />
   }
 
   // Redirect to login if not authenticated

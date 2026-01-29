@@ -121,9 +121,10 @@ function MetadataForm({ onSubmit, isSubmitting }) {
           type="submit"
           variant="secondary"
           className="w-full"
-          disabled={isSubmitting}
+          loading={isSubmitting}
+          loadingText="Saving"
         >
-          {isSubmitting ? 'Saving...' : 'Save & Index'}
+          Save & Index
         </BrutalButton>
       </div>
     </form>
