@@ -1,0 +1,4 @@
+# This directory stores uploaded files
+# Do not commit uploaded files to git
+*
+!.gitkeep
