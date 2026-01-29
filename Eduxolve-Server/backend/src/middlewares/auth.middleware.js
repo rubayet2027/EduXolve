@@ -1,10 +1,19 @@
 const { auth } = require('../config/firebase');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const { isAdminEmail } = require('../config/admin');
+
+// JWT secret for admin tokens (must match auth.routes.js)
+const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'eduxolve-admin-demo-secret-2026';
 
 /**
  * Authentication Middleware
  * 
- * - Verifies Firebase ID token from Authorization header
+ * Supports both:
+ * - Firebase ID tokens (for students)
+ * - Admin JWT tokens (for hardcoded admin credentials)
+ * 
+ * - Verifies token from Authorization header
  * - Finds or creates user in MongoDB
  * - Attaches user info to request object
  */
@@ -30,7 +39,26 @@ const authenticate = async (req, res, next) => {
       });
     }
 
-    // Verify token with Firebase Admin SDK
+    // First, try to verify as Admin JWT token
+    try {
+      const decoded = jwt.verify(token, ADMIN_JWT_SECRET);
+      
+      if (decoded.isAdmin) {
+        // Admin JWT is self-contained - NO MongoDB required
+        req.user = {
+          id: decoded.id,
+          firebaseUid: decoded.id,
+          email: decoded.email,
+          role: 'admin'
+        };
+        console.log(`🔐 Admin authenticated via JWT: ${decoded.email}`);
+        return next();
+      }
+    } catch (jwtError) {
+      // Not a valid admin JWT, try Firebase token
+    }
+
+    // Try Firebase token verification
     const decodedToken = await auth.verifyIdToken(token);
     const { uid, email } = decodedToken;
 
@@ -45,13 +73,21 @@ const authenticate = async (req, res, next) => {
     let user = await User.findOne({ firebaseUid: uid });
 
     if (!user) {
-      // Auto-create new user with default 'student' role
+      // Check if this email should be admin
+      const shouldBeAdmin = isAdminEmail(email);
+      
+      // Auto-create new user
       user = await User.create({
         firebaseUid: uid,
         email: email,
-        role: 'student'
+        role: shouldBeAdmin ? 'admin' : 'student'
       });
-      console.log(`📝 New user created: ${email}`);
+      console.log(`📝 New user created: ${email} (${shouldBeAdmin ? 'admin' : 'student'})`);
+    } else if (isAdminEmail(email) && user.role !== 'admin') {
+      // Upgrade to admin if email matches
+      user.role = 'admin';
+      await user.save();
+      console.log(`🔄 User upgraded to admin: ${email}`);
     }
 
     // Attach user info to request

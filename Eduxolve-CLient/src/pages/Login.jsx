@@ -5,6 +5,7 @@
  * - Google Sign-In
  * - Email/Password Login
  * - Email/Password Registration (toggle)
+ * - Admin login (hardcoded credentials)
  * 
  * Features:
  * - Loading states
@@ -22,9 +23,13 @@ import PageWrapper from '../components/common/PageWrapper'
 import Loader from '../components/common/Loader'
 import { useToast } from '../components/common'
 
+// Admin emails for detection
+const ADMIN_EMAILS = ['admin@eduxolve.com', 'admin@university.edu']
+const isAdminEmail = (email) => ADMIN_EMAILS.includes(email?.toLowerCase())
+
 function Login() {
   const navigate = useNavigate()
-  const { user, role, loading: authLoading } = useAuthStore()
+  const { user, role, loading: authLoading, setAuth } = useAuthStore()
   const toast = useToast()
   
   // Form state
@@ -78,7 +83,25 @@ function Login() {
       if (isRegistering) {
         await registerWithEmail(email, password)
       } else {
-        await loginWithEmail(email, password)
+        const result = await loginWithEmail(email, password)
+        
+        // For admin login, manually trigger auth state update
+        // (since admin uses JWT, not Firebase auth state)
+        if (isAdminEmail(email) && result) {
+          // Set auth store for admin
+          const adminUser = {
+            uid: result.id || result._id,
+            email: result.email,
+            displayName: result.email,
+            photoURL: null,
+            emailVerified: true,
+            id: result.id || result._id,
+          }
+          setAuth(adminUser, 'admin')
+          toast.success('Welcome, Admin!')
+          navigate('/admin')
+          return
+        }
       }
       // Navigation handled by useEffect above after auth state updates
     } catch (err) {
@@ -285,11 +308,6 @@ function Login() {
             </p>
           </div>
         </BrutalCard>
-
-        {/* Admin hint (for testing) */}
-        <p className="text-center text-xs text-[#111111]/40 mt-4">
-          Admin access: Use admin@university.edu
-        </p>
         </motion.div>
       </div>
     </PageWrapper>

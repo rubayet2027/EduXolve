@@ -10,6 +10,7 @@ const searchRoutes = require('./search.routes');
 const validationRoutes = require('./validation.routes');
 const chatRoutes = require('./chat.routes');
 const fileRoutes = require('./file.routes');
+const authRoutes = require('./auth.routes');
 
 /**
  * Central route registration
@@ -18,6 +19,9 @@ const fileRoutes = require('./file.routes');
 
 // Health check - public
 router.use('/', healthRoutes);
+
+// Auth routes - Admin login (public)
+router.use('/auth', authRoutes);
 
 // User routes - includes /me (protected)
 router.use('/', userRoutes);

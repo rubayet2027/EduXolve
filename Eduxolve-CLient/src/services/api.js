@@ -3,12 +3,14 @@
  * 
  * Centralized API client with:
  * - Automatic Firebase ID token attachment
+ * - Admin JWT token support
  * - Global error handling
  * - Loading state management
  * - Response normalization
  */
 
 import { auth } from './firebase'
+import { getAdminToken } from './auth.service'
 
 // API Base URL from environment
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
@@ -26,10 +28,17 @@ export class ApiError extends Error {
 }
 
 /**
- * Get the current user's Firebase ID token
- * @returns {Promise<string|null>} ID token or null if not authenticated
+ * Get the current user's auth token (admin JWT or Firebase ID token)
+ * @returns {Promise<string|null>} Token or null if not authenticated
  */
 export const getAuthToken = async () => {
+  // First check for admin token
+  const adminToken = getAdminToken()
+  if (adminToken) {
+    return adminToken
+  }
+  
+  // Fall back to Firebase token
   const user = auth.currentUser
   if (!user) return null
   
