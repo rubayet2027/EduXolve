@@ -9,6 +9,7 @@ const aiRoutes = require('./ai.routes');
 const searchRoutes = require('./search.routes');
 const validationRoutes = require('./validation.routes');
 const chatRoutes = require('./chat.routes');
+const fileRoutes = require('./file.routes');
 
 /**
  * Central route registration
@@ -35,6 +36,9 @@ router.use('/validate', validationRoutes);
 
 // Chat routes - Conversational AI
 router.use('/chat', chatRoutes);
+
+// File routes - File upload & context
+router.use('/files', fileRoutes);
 
 // DEV TEST: Direct search test endpoint (remove in production)
 const { getIndexingStats, indexContent } = require('../services/indexing.service');

@@ -1,6 +1,7 @@
 /**
  * Chat Page - Conversational AI Chat Interface
  * Core interaction layer for academic learning
+ * Now with file attachment support for code review, document analysis, etc.
  */
 
 import { useState, useRef, useEffect } from 'react'
@@ -8,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChatHeader, ChatMessage, ChatInput } from '../components/chat'
 import { BrutalButton } from '../components/ui'
 import PageWrapper from '../components/common/PageWrapper'
+import FileAttachment from '../components/common/FileAttachment'
 import { chatApi } from '../services/api'
 
 // Suggested follow-ups shown after AI messages
@@ -21,7 +23,7 @@ const suggestedFollowUps = [
 const welcomeMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: "Hello! I'm your Course Assistant for Data Structures.\n\nI can help you:\n• Understand concepts from lectures and labs\n• Find relevant course materials\n• Generate study notes and examples\n\nWhat would you like to learn about today?",
+  content: "Hello! I'm your Course Assistant for Data Structures.\n\nI can help you:\n• Understand concepts from lectures and labs\n• Find relevant course materials\n• Generate study notes and examples\n• **Analyze uploaded files** (code, PDFs, documents)\n\nWhat would you like to learn about today?",
   sources: [],
   actions: []
 }
@@ -30,6 +32,7 @@ function Chat() {
   const [messages, setMessages] = useState([welcomeMessage])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [attachedFile, setAttachedFile] = useState(null) // { fileId, fileName, ... }
   const messagesEndRef = useRef(null)
 
   // Scroll to bottom when messages change
@@ -47,17 +50,36 @@ function Chat() {
       }))
   }
 
+  // Handle file processed from FileAttachment
+  const handleFileProcessed = (fileData) => {
+    setAttachedFile(fileData)
+    
+    // If a quick action was selected, send it as a message
+    if (fileData.selectedAction) {
+      handleSend(fileData.selectedAction.prompt, fileData.fileId)
+    }
+  }
+
+  // Handle file removed
+  const handleFileRemoved = () => {
+    setAttachedFile(null)
+  }
+
   // Handle sending a message
-  const handleSend = async (content) => {
+  const handleSend = async (content, fileIdOverride = null) => {
     if (!content.trim()) return
     
     setError(null)
     
-    // Add user message
+    const fileId = fileIdOverride || attachedFile?.fileId
+    
+    // Add user message (with file indicator if attached)
     const userMessage = {
       id: Date.now(),
       role: 'user',
-      content
+      content,
+      hasFile: !!fileId,
+      fileName: fileId ? attachedFile?.fileName : null
     }
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
@@ -71,10 +93,11 @@ function Chat() {
     }])
 
     try {
-      // Call the chat API
+      // Call the chat API with optional fileId
       const response = await chatApi.send({
         message: content,
-        history: buildChatHistory()
+        history: buildChatHistory(),
+        fileId: fileId || undefined
       })
 
       // Extract the reply from response
@@ -89,10 +112,16 @@ function Chat() {
               content: aiReply.reply || aiReply.message || 'I received your message but couldn\'t generate a response.',
               sources: aiReply.sources || [],
               actions: aiReply.actions || [],
+              hasFileContext: aiReply.hasFileContext || false,
+              fileAnalysis: aiReply.fileAnalysis || null,
               isLoading: false
             }
           : msg
       ))
+      
+      // Clear attached file after successful send (user can re-attach if needed)
+      // Keep for follow-up questions
+      // setAttachedFile(null)
     } catch (err) {
       console.error('Chat error:', err)
       
@@ -132,6 +161,7 @@ function Chat() {
     try {
       await chatApi.clearSession()
       setMessages([welcomeMessage])
+      setAttachedFile(null)
       setError(null)
     } catch (err) {
       console.error('Failed to clear chat:', err)
@@ -194,8 +224,67 @@ function Chat() {
           </div>
         </div>
 
+        {/* File Attachment Area */}
+        <AnimatePresence>
+          {!attachedFile && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="border-t-2 border-[#111111]/10 bg-[#F5F5F3]"
+            >
+              <div className="max-w-4xl mx-auto px-4 py-4">
+                <FileAttachment
+                  onFileProcessed={handleFileProcessed}
+                  onFileRemoved={handleFileRemoved}
+                  disabled={isLoading}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Attached File Preview (above input) */}
+        <AnimatePresence>
+          {attachedFile && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="border-t-2 border-[#111111]/10 bg-[#E8F0FC]"
+            >
+              <div className="max-w-4xl mx-auto px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📎</span>
+                    <span className="font-medium text-[#111111]">{attachedFile.fileName}</span>
+                    <span className="text-sm text-[#111111]/60">
+                      ({attachedFile.isCode ? attachedFile.language : attachedFile.fileType?.toUpperCase()})
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleFileRemoved}
+                    className="text-sm text-[#111111]/60 hover:text-[#111111] underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+                {attachedFile.summary && (
+                  <p className="text-sm text-[#111111]/70 mt-2 line-clamp-2">
+                    {attachedFile.summary}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Input Area */}
-        <ChatInput onSend={handleSend} disabled={isLoading} />
+        <ChatInput 
+          onSend={handleSend} 
+          disabled={isLoading} 
+          placeholder={attachedFile ? `Ask about ${attachedFile.fileName}...` : 'Type your message...'}
+        />
       </div>
     </PageWrapper>
   )

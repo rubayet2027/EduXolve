@@ -29,7 +29,7 @@ export class ApiError extends Error {
  * Get the current user's Firebase ID token
  * @returns {Promise<string|null>} ID token or null if not authenticated
  */
-const getAuthToken = async () => {
+export const getAuthToken = async () => {
   const user = auth.currentUser
   if (!user) return null
   
@@ -355,7 +355,7 @@ export const validationApi = {
 export const chatApi = {
   /**
    * Send a chat message
-   * @param {Object} params - { message, history }
+   * @param {Object} params - { message, history, fileId }
    */
   send: (params) => request('/chat', {
     method: 'POST',
@@ -384,6 +384,95 @@ export const chatApi = {
   }),
 }
 
+/**
+ * FILE UPLOAD
+ */
+export const fileApi = {
+  /**
+   * Upload a file for AI processing
+   * @param {File} file - File to upload
+   * @param {Function} onProgress - Progress callback (0-100)
+   * @returns {Promise<Object>} Upload result with fileId
+   */
+  upload: async (file, onProgress = null) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    // Use XMLHttpRequest for progress tracking
+    if (onProgress) {
+      // Get token before Promise to avoid async executor anti-pattern
+      const token = await getAuthToken()
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const progress = Math.round((e.loaded / e.total) * 100)
+            onProgress(progress)
+          }
+        })
+        
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText)
+              resolve(data)
+            } catch {
+              reject(new ApiError('Invalid response', xhr.status))
+            }
+          } else {
+            try {
+              const data = JSON.parse(xhr.responseText)
+              reject(new ApiError(data.message || 'Upload failed', xhr.status, data))
+            } catch {
+              reject(new ApiError('Upload failed', xhr.status))
+            }
+          }
+        })
+        
+        xhr.addEventListener('error', () => {
+          reject(new ApiError('Network error during upload', 0))
+        })
+        
+        xhr.open('POST', `${API_BASE_URL}/files/upload`)
+        if (token) {
+          xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+        }
+        xhr.send(formData)
+      })
+    }
+    
+    // Standard fetch without progress
+    return request('/files/upload', {
+      method: 'POST',
+      body: formData,
+      isFormData: true,
+    })
+  },
+  
+  /**
+   * Get file context by ID
+   * @param {string} fileId - File ID
+   */
+  getContext: (fileId) => request(`/files/${fileId}/context`),
+  
+  /**
+   * Delete file context
+   * @param {string} fileId - File ID
+   */
+  delete: (fileId) => request(`/files/${fileId}`, {
+    method: 'DELETE',
+  }),
+  
+  /**
+   * Get supported file types
+   */
+  getSupportedTypes: () => request('/files/supported-types', {
+    includeAuth: false,
+  }),
+}
+
 // Default export with all APIs
 const api = {
   user: userApi,
@@ -392,6 +481,7 @@ const api = {
   ai: aiApi,
   validation: validationApi,
   chat: chatApi,
+  file: fileApi,
 }
 
 export default api

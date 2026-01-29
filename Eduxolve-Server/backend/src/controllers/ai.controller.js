@@ -5,6 +5,8 @@ const {
   getSupportedTypes,
   getSupportedLanguages
 } = require('../services/aiPrompt.service');
+const { getStoredContext } = require('./file.controller');
+const { formatContextForPrompt, getFileResponseDisclaimer } = require('../services/fileContext.service');
 
 /**
  * @desc    Generate AI content (theory, lab code, slides)
@@ -13,7 +15,7 @@ const {
  */
 const generate = async (req, res) => {
   try {
-    const { type, topic, language, context, options } = req.body;
+    const { type, topic, language, context, options, fileId } = req.body;
 
     // Validate required fields
     if (!type) {
@@ -41,10 +43,25 @@ const generate = async (req, res) => {
       });
     }
 
+    // Check for file context
+    let fileContextStr = '';
+    let hasFileContext = false;
+    if (fileId) {
+      const stored = getStoredContext(fileId);
+      if (stored) {
+        fileContextStr = stored.formattedContext || '';
+        hasFileContext = true;
+        console.log(`📎 Using file context for generation: ${stored.context?.filename}`);
+      }
+    }
+
+    // Combine contexts
+    const combinedContext = fileContextStr + (context || '');
+
     // Build the prompt
     const prompt = buildPrompt(type, topic.trim(), {
       language: language || 'python',
-      context: context || '',
+      context: combinedContext,
       options: options || {}
     });
 
@@ -66,6 +83,12 @@ const generate = async (req, res) => {
       });
     }
 
+    // Build sources list
+    const sources = [];
+    if (hasFileContext) sources.push('uploaded_file');
+    if (context) sources.push('course_materials');
+    if (sources.length === 0) sources.push('ai_generated');
+
     // Return successful response
     res.status(200).json({
       success: true,
@@ -74,7 +97,8 @@ const generate = async (req, res) => {
         type,
         topic,
         language: type === 'lab' ? (language || 'python') : undefined,
-        sources: context ? ['course_materials'] : ['ai_generated'],
+        sources,
+        hasFileContext,
         model: result.model,
         usage: result.usage
       }

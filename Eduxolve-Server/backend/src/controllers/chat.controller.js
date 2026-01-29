@@ -7,6 +7,7 @@
  * - AI Generation
  * - Content Validation
  * - Context Management
+ * - File Context Support
  */
 
 const { detectIntent, getSuggestedActions } = require('../services/intent.service');
@@ -22,6 +23,8 @@ const {
   buildGreetingResponse,
   buildNoContextResponse
 } = require('../services/chatPrompt.service');
+const { getStoredContext } = require('./file.controller');
+const { formatContextForPrompt, getFileResponseDisclaimer, getSuggestedActions: getFileSuggestedActions } = require('../services/fileContext.service');
 
 // In-memory session storage (simple implementation)
 const sessions = new Map();
@@ -82,7 +85,7 @@ const updateSession = (userId, role, content) => {
  */
 const chat = async (req, res) => {
   try {
-    const { message, history: clientHistory } = req.body;
+    const { message, history: clientHistory, fileId } = req.body;
     const userId = req.user?.id || 'anonymous';
     
     // Validate input
@@ -99,6 +102,18 @@ const chat = async (req, res) => {
     const session = getSession(userId);
     const conversationHistory = clientHistory || session.history;
     
+    // Check for file context
+    let fileContext = null;
+    let hasFileContext = false;
+    if (fileId) {
+      const stored = getStoredContext(fileId);
+      if (stored) {
+        fileContext = stored;
+        hasFileContext = true;
+        console.log(`📎 Using file context: ${fileContext.context?.filename}`);
+      }
+    }
+    
     // Step 1: Detect Intent
     const intentResult = await detectIntent(trimmedMessage, conversationHistory, { useAI: true });
     console.log(`💬 Chat intent: ${intentResult.intent} (${intentResult.confidence}) - "${intentResult.topic}"`);
@@ -111,34 +126,39 @@ const chat = async (req, res) => {
     // Step 2: Route to appropriate handler based on intent
     let response;
     
-    switch (intentResult.intent) {
-      case 'greeting':
-        response = buildGreetingResponse();
-        break;
-        
-      case 'search':
-        response = await handleSearchIntent(trimmedMessage, intentResult, conversationHistory);
-        break;
-        
-      case 'generate':
-        response = await handleGenerateIntent(trimmedMessage, intentResult, conversationHistory);
-        break;
-        
-      case 'explain':
-        response = await handleExplainIntent(trimmedMessage, intentResult, conversationHistory);
-        break;
-        
-      case 'validate':
-        response = await handleValidateIntent(trimmedMessage, intentResult, conversationHistory);
-        break;
-        
-      case 'followup':
-        response = await handleFollowupIntent(trimmedMessage, session, conversationHistory);
-        break;
-        
-      default:
-        // Unknown intent - try explain as default
-        response = await handleExplainIntent(trimmedMessage, intentResult, conversationHistory);
+    // If file context is present, prioritize file-based handling
+    if (hasFileContext) {
+      response = await handleFileContextIntent(trimmedMessage, intentResult, fileContext, conversationHistory);
+    } else {
+      switch (intentResult.intent) {
+        case 'greeting':
+          response = buildGreetingResponse();
+          break;
+          
+        case 'search':
+          response = await handleSearchIntent(trimmedMessage, intentResult, conversationHistory);
+          break;
+          
+        case 'generate':
+          response = await handleGenerateIntent(trimmedMessage, intentResult, conversationHistory);
+          break;
+          
+        case 'explain':
+          response = await handleExplainIntent(trimmedMessage, intentResult, conversationHistory);
+          break;
+          
+        case 'validate':
+          response = await handleValidateIntent(trimmedMessage, intentResult, conversationHistory);
+          break;
+          
+        case 'followup':
+          response = await handleFollowupIntent(trimmedMessage, session, conversationHistory);
+          break;
+          
+        default:
+          // Unknown intent - try explain as default
+          response = await handleExplainIntent(trimmedMessage, intentResult, conversationHistory);
+      }
     }
     
     // Update session with assistant response
@@ -149,6 +169,7 @@ const chat = async (req, res) => {
       success: true,
       intent: intentResult.intent,
       confidence: intentResult.confidence,
+      hasFileContext,
       ...response
     });
     
@@ -161,6 +182,66 @@ const chat = async (req, res) => {
       error: process.env.NODE_ENV !== 'production' ? error.message : undefined
     });
   }
+};
+
+/**
+ * Handle chat with file context
+ * Uses uploaded file as primary context for AI response
+ */
+const handleFileContextIntent = async (message, intentResult, fileContext, history) => {
+  const { formattedContext, context } = fileContext;
+  const isCode = context?.isCode || false;
+  
+  console.log(`📎 Processing file-based query: ${message.substring(0, 50)}...`);
+  
+  // Build file-aware prompt
+  const systemInstruction = isCode
+    ? `You are EduXolve, an AI academic assistant analyzing uploaded code.
+IMPORTANT RULES:
+- You are analyzing code, NOT executing it
+- Be specific about line numbers when pointing out issues
+- Explain concepts clearly for students
+- If you can't determine something, say so
+- Always mention that your analysis is based on the uploaded file`
+    : `You are EduXolve, an AI academic assistant analyzing an uploaded document.
+IMPORTANT RULES:
+- Base your response on the uploaded file content
+- If information is not in the file, clearly state that
+- Be educational and helpful
+- Always mention that your response is based on the uploaded file`;
+
+  const prompt = `${systemInstruction}
+
+${formattedContext}
+
+Student's question: ${message}
+
+Provide a helpful, accurate response based on the uploaded file:`;
+
+  const aiResponse = await generateChatResponse(prompt);
+  
+  // Add safety disclaimer
+  const disclaimer = getFileResponseDisclaimer(isCode);
+  const fullReply = aiResponse.reply + disclaimer;
+  
+  // Get file-specific suggested actions
+  const actions = getFileSuggestedActions({ success: true, context });
+  
+  return {
+    reply: fullReply,
+    sources: [{
+      title: context?.filename || 'Uploaded File',
+      type: 'uploaded_file',
+      isCode
+    }],
+    actions: actions.map(a => a.label),
+    fileAnalysis: {
+      filename: context?.filename,
+      fileType: context?.fileType,
+      isCode,
+      codeAnalysis: context?.codeAnalysis || null
+    }
+  };
 };
 
 /**

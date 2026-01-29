@@ -95,7 +95,7 @@ function Search() {
             {/* Error State */}
             {error && (
               <div className="mb-6 p-4 bg-red-100 border-2 border-red-500 rounded-xl flex items-center gap-3">
-                <IoWarning size={24} className="text-red-500 flex-shrink-0" />
+                <IoWarning size={24} className="text-red-500 shrink-0" />
                 <div>
                   <p className="font-medium text-red-700">{error}</p>
                   <p className="text-sm text-red-600">Please check your connection and try again.</p>

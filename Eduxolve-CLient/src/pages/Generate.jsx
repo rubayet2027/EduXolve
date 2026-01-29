@@ -1,11 +1,14 @@
 /**
  * Generate Page - AI Content Generation Interface
  * Create notes, slides, or lab code grounded in course materials
+ * Now with file attachment support for context-aware generation
  */
 
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { PromptPanel, OutputPanel } from '../components/generate'
 import PageWrapper from '../components/common/PageWrapper'
+import FileAttachment from '../components/common/FileAttachment'
 import { aiApi, validationApi } from '../services/api'
 
 function Generate() {
@@ -16,6 +19,7 @@ function Generate() {
   const [isValidating, setIsValidating] = useState(false)
   const [output, setOutput] = useState(null)
   const [error, setError] = useState(null)
+  const [attachedFile, setAttachedFile] = useState(null) // { fileId, fileName, ... }
 
   // Map frontend content type to backend type
   const getBackendType = (type) => {
@@ -25,6 +29,31 @@ function Generate() {
       case 'code': return 'lab'
       default: return 'theory'
     }
+  }
+
+  // Handle file processed
+  const handleFileProcessed = (fileData) => {
+    setAttachedFile(fileData)
+    
+    // Auto-set content type based on file
+    if (fileData.isCode) {
+      setContentType('code')
+      // Try to match language
+      const langMap = {
+        'Python': 'python',
+        'JavaScript': 'javascript',
+        'C': 'c',
+        'C++': 'cpp'
+      }
+      if (langMap[fileData.language]) {
+        setLanguage(langMap[fileData.language])
+      }
+    }
+  }
+
+  // Handle file removed
+  const handleFileRemoved = () => {
+    setAttachedFile(null)
   }
 
   // Parse generated content into sections
@@ -98,7 +127,8 @@ function Generate() {
       const requestBody = {
         type: backendType,
         topic: prompt,
-        ...(contentType === 'code' && { language })
+        ...(contentType === 'code' && { language }),
+        ...(attachedFile?.fileId && { fileId: attachedFile.fileId })
       }
 
       // Call the AI generation API
@@ -107,6 +137,7 @@ function Generate() {
       // Extract generated content
       const generatedContent = response.data?.content || response.content || response.data || ''
       const sources = response.data?.sources || response.sources || []
+      const hasFileContext = response.data?.hasFileContext || false
       
       // Parse and structure the content
       const parsedOutput = parseGeneratedContent(generatedContent, contentType)
@@ -114,6 +145,7 @@ function Generate() {
       if (parsedOutput) {
         parsedOutput.sources = sources
         parsedOutput.rawContent = generatedContent
+        parsedOutput.hasFileContext = hasFileContext
         
         // Automatically validate after generation
         setOutput(parsedOutput)
@@ -167,7 +199,7 @@ function Generate() {
               Generate Learning Materials
             </h1>
             <p className="text-sm text-[#111111]/60 mt-1">
-              Create notes, slides, or lab code using course content
+              Create notes, slides, or lab code using course content or uploaded files
             </p>
           </div>
 
@@ -177,6 +209,71 @@ function Generate() {
               <p className="font-medium text-red-700">{error}</p>
             </div>
           )}
+
+          {/* File Attachment Section */}
+          <div className="mb-6">
+            <AnimatePresence mode="wait">
+              {!attachedFile ? (
+                <motion.div
+                  key="dropzone"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <FileAttachment
+                    onFileProcessed={handleFileProcessed}
+                    onFileRemoved={handleFileRemoved}
+                    disabled={isLoading}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="preview"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="bg-[#E8F0FC] border-2 border-[#111111] rounded-xl shadow-[3px_3px_0px_#111111] p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📎</span>
+                      <div>
+                        <p className="font-semibold text-[#111111]">{attachedFile.fileName}</p>
+                        <p className="text-sm text-[#111111]/60">
+                          {attachedFile.isCode ? attachedFile.language : attachedFile.fileType?.toUpperCase()} 
+                          {attachedFile.summary && ` • ${attachedFile.summary.substring(0, 60)}...`}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleFileRemoved}
+                      className="text-sm text-[#111111]/60 hover:text-[#111111] underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  
+                  {/* Quick prompts based on file */}
+                  {attachedFile.suggestedActions?.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-[#111111]/20">
+                      <p className="text-xs text-[#111111]/60 mb-2">Quick prompts:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {attachedFile.suggestedActions.slice(0, 3).map((action) => (
+                          <button
+                            key={action.id}
+                            onClick={() => setPrompt(action.prompt)}
+                            className="text-xs px-2 py-1 bg-white border border-[#111111]/30 rounded-lg hover:bg-[#FFD93D]/30 transition-colors"
+                          >
+                            {action.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full min-h-150">
             {/* Left Panel - Prompt & Options */}

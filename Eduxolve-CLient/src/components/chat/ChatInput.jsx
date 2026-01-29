@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { BrutalButton } from '../ui'
 
-function ChatInput({ onSend, disabled }) {
+function ChatInput({ onSend, disabled, placeholder = 'Ask about your course materials...' }) {
   const [value, setValue] = useState('')
   const textareaRef = useRef(null)
 
@@ -45,7 +45,7 @@ function ChatInput({ onSend, disabled }) {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about your course materials..."
+              placeholder={placeholder}
               disabled={disabled}
               rows={1}
               className="
