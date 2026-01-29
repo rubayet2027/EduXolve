@@ -77,13 +77,21 @@ function Navbar() {
     setMobileMenuOpen(false)
   }
 
-  // Navigation links for authenticated users
-  const navLinks = [
+  // Navigation links - different for admin vs student
+  const studentNavLinks = [
     { path: '/dashboard', label: 'Dashboard', icon: IoHome },
     { path: '/search', label: 'Search', icon: IoSearch },
     { path: '/chat', label: 'Chat', icon: IoChatbubbles },
     { path: '/generate', label: 'Generate', icon: IoSparkles },
   ]
+
+  // Admin only gets Generate (other features are student-focused)
+  const adminNavLinks = [
+    { path: '/admin', label: 'Dashboard', icon: IoHome },
+    { path: '/generate', label: 'Generate', icon: IoSparkles },
+  ]
+
+  const navLinks = role === 'admin' ? adminNavLinks : studentNavLinks
 
   const isActive = (path) => location.pathname === path
 
@@ -109,14 +117,16 @@ function Navbar() {
               <span className="text-xl font-bold text-[#111111]">EduXolve</span>
             </button>
 
-            {/* Right: Sign In Button */}
-            <BrutalButton 
-              variant="primary" 
-              onClick={() => navigate('/login')}
-              className="px-5 py-2"
-            >
-              Sign In
-            </BrutalButton>
+            {/* Right: Sign In Button - hide on login page */}
+            {location.pathname !== '/login' && (
+              <BrutalButton 
+                variant="primary" 
+                onClick={() => navigate('/login')}
+                className="px-5 py-2"
+              >
+                Sign In
+              </BrutalButton>
+            )}
           </div>
         </MotionHeader>
         {/* Spacer for fixed navbar */}
@@ -173,33 +183,8 @@ function Navbar() {
             })}
           </nav>
 
-          {/* Right: Admin, Profile & Logout (Desktop) */}
+          {/* Right: Profile & Logout (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Admin Link (if admin) */}
-            {role === 'admin' && (
-              <button
-                onClick={() => handleNavClick('/admin')}
-                className={`
-                  px-3 py-1.5
-                  text-xs font-bold
-                  text-[#111111]
-                  border-2 border-[#111111]
-                  rounded-lg
-                  shadow-[2px_2px_0px_#111111]
-                  transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
-                  hover:-translate-y-0.5 hover:-translate-x-0.5
-                  hover:shadow-[3px_3px_0px_#111111]
-                  active:translate-y-0.5 active:translate-x-0.5
-                  active:shadow-[0px_0px_0px_#111111]
-                  cursor-pointer
-                  bg-[#FFF0D9]
-                `}
-              >
-                <IoSettings size={14} className="inline mr-1" />
-                Admin
-              </button>
-            )}
-
             {/* Profile Avatar */}
             <div className="flex items-center gap-2">
               {user?.photoURL ? (
@@ -213,8 +198,8 @@ function Navbar() {
                   <IoPerson size={18} style={{ color: '#007AFF' }} />
                 </div>
               )}
-              <span className="text-sm font-medium text-[#111111] hidden lg:block">
-                {user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student'}
+              <span className="text-sm font-medium text-[#111111] hidden lg:block max-w-[100px] truncate">
+                {role === 'admin' ? 'Admin' : (user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student')}
               </span>
             </div>
 
@@ -285,11 +270,11 @@ function Navbar() {
                       <IoPerson size={24} style={{ color: '#007AFF' }} />
                     </div>
                   )}
-                  <div>
-                    <p className="font-bold text-[#111111]">
-                      {user?.displayName?.split(' ')[0] || 'Student'}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-[#111111] truncate">
+                      {role === 'admin' ? 'Admin' : (user?.displayName?.split(' ')[0] || 'Student')}
                     </p>
-                    <p className="text-sm text-[#111111]/60">
+                    <p className="text-sm text-[#111111]/60 truncate">
                       {user?.email}
                     </p>
                   </div>
@@ -322,28 +307,6 @@ function Navbar() {
                     </button>
                   )
                 })}
-
-                {/* Admin Link (if admin) */}
-                {role === 'admin' && (
-                  <button
-                    onClick={() => handleNavClick('/admin')}
-                    className={`
-                      w-full px-4 py-3
-                      text-left font-bold
-                      rounded-xl
-                      flex items-center gap-3
-                      transition-all duration-200
-                      cursor-pointer
-                      ${isActive('/admin')
-                        ? 'bg-[#FFF0D9] text-[#111111] border-2 border-[#111111] shadow-[2px_2px_0px_#111111]'
-                        : 'text-[#111111]/70 hover:text-[#111111] hover:bg-[#FFF0D9]/50'
-                      }
-                    `}
-                  >
-                    <IoSettings size={20} />
-                    Admin Dashboard
-                  </button>
-                )}
               </nav>
 
               {/* Logout Button */}

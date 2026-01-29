@@ -48,6 +48,8 @@ const isAdminEmail = (email) => {
  */
 export const loginAsAdmin = async (email, password) => {
   try {
+    console.log('🔐 Attempting admin login for:', email)
+    
     const response = await fetch(`${API_BASE_URL}/auth/admin/login`, {
       method: 'POST',
       headers: {
@@ -57,13 +59,20 @@ export const loginAsAdmin = async (email, password) => {
     })
     
     const data = await response.json()
+    console.log('🔐 Admin login response:', data)
     
     if (!response.ok) {
       throw new Error(data.message || 'Admin login failed')
     }
     
     // Store admin token
-    setAdminToken(data.token)
+    if (data.token) {
+      setAdminToken(data.token)
+      console.log('🔐 Admin token stored successfully')
+    } else {
+      console.error('🔐 No token in response!')
+      throw new Error('No token received from server')
+    }
     
     return data.user
   } catch (error) {

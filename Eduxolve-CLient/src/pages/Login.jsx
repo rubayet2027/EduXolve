@@ -40,20 +40,22 @@ function Login() {
   // UI state
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [hasRedirected, setHasRedirected] = useState(false)
 
-  // Redirect if already logged in
+  // Redirect if already logged in (only once)
   useEffect(() => {
-    if (!authLoading && user) {
-      // Show success toast
+    if (!authLoading && user && !hasRedirected) {
+      setHasRedirected(true)
+      // Show success toast only once
       toast.success('Welcome back!')
       // Redirect based on role
       if (role === 'admin') {
-        navigate('/admin')
+        navigate('/admin', { replace: true })
       } else {
-        navigate('/dashboard')
+        navigate('/dashboard', { replace: true })
       }
     }
-  }, [user, role, authLoading, navigate, toast])
+  }, [user, role, authLoading, hasRedirected, navigate])
 
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
@@ -83,28 +85,33 @@ function Login() {
       if (isRegistering) {
         await registerWithEmail(email, password)
       } else {
+        console.log('🔐 Login attempt for:', email)
         const result = await loginWithEmail(email, password)
+        console.log('🔐 Login result:', result)
         
         // For admin login, manually trigger auth state update
         // (since admin uses JWT, not Firebase auth state)
         if (isAdminEmail(email) && result) {
+          console.log('🔐 Admin detected, setting auth store...')
           // Set auth store for admin
           const adminUser = {
-            uid: result.id || result._id,
+            uid: result.id,
             email: result.email,
             displayName: result.email,
             photoURL: null,
             emailVerified: true,
-            id: result.id || result._id,
+            id: result.id,
           }
           setAuth(adminUser, 'admin')
+          console.log('🔐 Auth store set, navigating to /admin...')
           toast.success('Welcome, Admin!')
-          navigate('/admin')
+          navigate('/admin', { replace: true })
           return
         }
       }
       // Navigation handled by useEffect above after auth state updates
     } catch (err) {
+      console.error('🔐 Login error:', err)
       setError(err.message)
       setIsLoading(false)
     }
@@ -116,9 +123,9 @@ function Login() {
     setError('')
   }
 
-  // Show loading spinner while checking auth state
-  if (authLoading) {
-    return <Loader message="Loading..." />
+  // Show loading spinner while checking auth state or redirecting
+  if (authLoading || (user && !hasRedirected) || hasRedirected) {
+    return <Loader message={hasRedirected ? "Redirecting..." : "Loading..."} />
   }
 
   return (
