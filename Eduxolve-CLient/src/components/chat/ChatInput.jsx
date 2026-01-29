@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { BrutalButton } from '../ui'
 
-function ChatInput({ onSend, disabled, placeholder = 'Ask about your course materials...' }) {
+function ChatInput({ onSend, disabled, placeholder = 'Ask about your course materials...', leftSlot }) {
   const [value, setValue] = useState('')
   const textareaRef = useRef(null)
 
@@ -37,9 +37,12 @@ function ChatInput({ onSend, disabled, placeholder = 'Ask about your course mate
   return (
     <div className="border-t-2 border-[#111111] bg-white p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex gap-3 items-end">
+        <div className="flex gap-3 items-stretch">
+          {/* Left Slot (e.g., File Attachment Button) */}
+          {leftSlot}
+          
           {/* Text Input */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative flex">
             <textarea
               ref={textareaRef}
               value={value}
@@ -72,7 +75,7 @@ function ChatInput({ onSend, disabled, placeholder = 'Ask about your course mate
             variant="primary"
             onClick={handleSubmit}
             disabled={!value.trim() || disabled}
-            className="px-4 py-3 shrink-0"
+            className="px-4 shrink-0"
           >
             <svg
               className="w-5 h-5"

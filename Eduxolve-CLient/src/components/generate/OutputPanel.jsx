@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { IoDocument, IoRefresh, IoChatbubble, IoChatbubbles, IoInformationCircle } from 'react-icons/io5'
 import { BrutalButton } from '../ui'
+import { MarkdownRenderer } from '../common'
 import ValidationBadge from './ValidationBadge'
 
 function OutputPanel({ output, isLoading, contentType }) {
@@ -175,61 +176,67 @@ function OutputPanel({ output, isLoading, contentType }) {
         {output.title}
       </h2>
 
-      {/* Content */}
+      {/* Content - Use MarkdownRenderer for raw AI content */}
       <div className="prose prose-sm max-w-none text-[#111111]">
-        {output.sections?.map((section, index) => (
-          <div key={index} className="mb-6">
-            {section.heading && (
-              <h3 className="text-lg font-bold text-[#111111] mb-2">
-                {section.heading}
-              </h3>
-            )}
-            
-            {section.content && (
-              <p className="text-[#111111]/80 leading-relaxed mb-3">
-                {section.content}
-              </p>
-            )}
+        {output.rawContent ? (
+          // Render raw Markdown content from AI
+          <MarkdownRenderer content={output.rawContent} />
+        ) : (
+          // Fallback to structured sections (legacy support)
+          output.sections?.map((section, index) => (
+            <div key={index} className="mb-6">
+              {section.heading && (
+                <h3 className="text-lg font-bold text-[#111111] mb-2">
+                  {section.heading}
+                </h3>
+              )}
+              
+              {section.content && (
+                <p className="text-[#111111]/80 leading-relaxed mb-3">
+                  {section.content}
+                </p>
+              )}
 
-            {section.bullets && (
-              <ul className="list-disc list-inside space-y-1 text-[#111111]/80 mb-3">
-                {section.bullets.map((bullet, i) => (
-                  <li key={i}>{bullet}</li>
-                ))}
-              </ul>
-            )}
+              {section.bullets && (
+                <ul className="list-disc list-inside space-y-1 text-[#111111]/80 mb-3">
+                  {section.bullets.map((bullet, i) => (
+                    <li key={i}>{bullet}</li>
+                  ))}
+                </ul>
+              )}
 
-            {section.code && (
-              <pre className="
-                bg-[#1a1a1a]
-                text-[#6BCB77]
-                text-sm
-                p-4
-                rounded-lg
-                border-2 border-[#111111]
-                overflow-x-auto
-                font-mono
-                mb-3
-              ">
-                <code>{section.code}</code>
-              </pre>
-            )}
+              {section.code && (
+                <pre className="
+                  bg-[#1a1a1a]
+                  text-[#6BCB77]
+                  text-sm
+                  p-4
+                  rounded-lg
+                  border-2 border-[#111111]
+                  overflow-x-auto
+                  font-mono
+                  mb-3
+                ">
+                  <code>{section.code}</code>
+                </pre>
+              )}
 
-            {section.note && (
-              <div className="
-                bg-[#FFF9E6]
-                border-2 border-[#FFD93D]
-                rounded-lg
-                p-3
-                text-sm
-                text-[#111111]/80
-                flex items-start gap-2
-              ">
-                <IoInformationCircle size={16} style={{ color: '#FF9500' }} className="mt-0.5 shrink-0" /> {section.note}
-              </div>
-            )}
-          </div>
-        ))}
+              {section.note && (
+                <div className="
+                  bg-[#FFF9E6]
+                  border-2 border-[#FFD93D]
+                  rounded-lg
+                  p-3
+                  text-sm
+                  text-[#111111]/80
+                  flex items-start gap-2
+                ">
+                  <IoInformationCircle size={16} style={{ color: '#FF9500' }} className="mt-0.5 shrink-0" /> {section.note}
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Source Attribution */}

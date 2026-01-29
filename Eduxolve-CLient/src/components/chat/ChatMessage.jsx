@@ -11,6 +11,7 @@
 import { motion } from 'framer-motion'
 import { IoDocument } from 'react-icons/io5'
 import ActionButtons from './ActionButtons'
+import { MarkdownRenderer } from '../common'
 
 function ChatMessage({ message, onAction }) {
   const isUser = message.role === 'user'
@@ -105,9 +106,13 @@ function ChatMessage({ message, onAction }) {
             {/* Message Content */}
             <motion.div 
               variants={isAI ? childVariants : undefined}
-              className="text-[#111111] whitespace-pre-wrap"
+              className="text-[#111111]"
             >
-              {message.content}
+              {isAI ? (
+                <MarkdownRenderer content={message.content} animate={false} />
+              ) : (
+                <span className="whitespace-pre-wrap">{message.content}</span>
+              )}
             </motion.div>
 
             {/* Sources Section (AI only) */}

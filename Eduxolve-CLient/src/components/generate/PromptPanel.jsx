@@ -5,6 +5,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { IoDocument, IoLayers, IoCode, IoSparkles } from 'react-icons/io5'
 import { BrutalButton } from '../ui'
+import { FileAttachmentButton } from '../common'
 
 // Content type options
 const contentTypes = [
@@ -28,12 +29,24 @@ function PromptPanel({
   language,
   setLanguage,
   onGenerate,
-  isLoading
+  isLoading,
+  attachedFile,
+  onFileProcessed,
+  onFileRemoved
 }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (prompt.trim() && !isLoading) {
       onGenerate()
+    }
+  }
+
+  // Handle file processed with quick action
+  const handleFileProcessed = (fileData) => {
+    onFileProcessed?.(fileData)
+    // If quick action selected, set prompt
+    if (fileData.selectedAction) {
+      setPrompt(fileData.selectedAction.prompt)
     }
   }
 
@@ -45,8 +58,9 @@ function PromptPanel({
       shadow-[3px_3px_0px_#111111]
       p-6
       h-full
+      overflow-y-auto
     ">
-      <form onSubmit={handleSubmit} className="flex flex-col h-full gap-7">
+      <form onSubmit={handleSubmit} className="flex flex-col h-full gap-6">
         {/* Section Title */}
         <div>
           <h2 className="text-lg font-bold text-[#111111] mb-1">
@@ -85,6 +99,21 @@ function PromptPanel({
               disabled:opacity-50 disabled:cursor-not-allowed
             "
           />
+          
+          {/* Attached File Indicator */}
+          {attachedFile && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-[#111111]/70">
+              <span>📎</span>
+              <span className="font-medium">{attachedFile.fileName}</span>
+              <button
+                type="button"
+                onClick={onFileRemoved}
+                className="text-xs underline hover:text-[#111111]"
+              >
+                Remove
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Content Type Selection */}
@@ -157,46 +186,56 @@ function PromptPanel({
           </div>
         )}
 
-        {/* Generate Button */}
-        <BrutalButton
-          type="submit"
-          variant="primary"
-          disabled={!prompt.trim() || isLoading}
-          className="w-full py-4 text-lg"
-        >
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <motion.span
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex items-center justify-center gap-2"
-              >
+        {/* Generate Button with File Attachment */}
+        <div className="flex gap-3 items-stretch">
+          <FileAttachmentButton
+            onFileProcessed={handleFileProcessed}
+            onFileRemoved={onFileRemoved}
+            attachedFile={attachedFile}
+            disabled={isLoading}
+            className="self-stretch"
+          />
+          
+          <BrutalButton
+            type="submit"
+            variant="primary"
+            disabled={!prompt.trim() || isLoading}
+            className="flex-1 py-4 text-lg"
+          >
+            <AnimatePresence mode="wait">
+              {isLoading ? (
                 <motion.span
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="inline-block"
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center justify-center gap-2"
                 >
-                  <IoSparkles size={20} />
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="inline-block"
+                  >
+                    <IoSparkles size={20} />
+                  </motion.span>
+                  Generating...
                 </motion.span>
-                Generating...
-              </motion.span>
-            ) : (
-              <motion.span
-                key="idle"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex items-center justify-center gap-2"
-              >
-                <IoSparkles size={20} /> Generate
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </BrutalButton>
+              ) : (
+                <motion.span
+                  key="idle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center justify-center gap-2"
+                >
+                  <IoSparkles size={20} /> Generate
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </BrutalButton>
+        </div>
       </form>
     </div>
   )

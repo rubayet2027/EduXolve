@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChatHeader, ChatMessage, ChatInput } from '../components/chat'
 import { BrutalButton } from '../components/ui'
 import PageWrapper from '../components/common/PageWrapper'
-import FileAttachment from '../components/common/FileAttachment'
+import FileAttachmentButton from '../components/common/FileAttachmentButton'
 import { chatApi } from '../services/api'
 
 // Suggested follow-ups shown after AI messages
@@ -224,27 +224,7 @@ function Chat() {
           </div>
         </div>
 
-        {/* File Attachment Area */}
-        <AnimatePresence>
-          {!attachedFile && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="border-t-2 border-[#111111]/10 bg-[#F5F5F3]"
-            >
-              <div className="max-w-4xl mx-auto px-4 py-4">
-                <FileAttachment
-                  onFileProcessed={handleFileProcessed}
-                  onFileRemoved={handleFileRemoved}
-                  disabled={isLoading}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Attached File Preview (above input) */}
+        {/* Attached File Indicator (above input) */}
         <AnimatePresence>
           {attachedFile && (
             <motion.div
@@ -253,37 +233,40 @@ function Chat() {
               exit={{ height: 0, opacity: 0 }}
               className="border-t-2 border-[#111111]/10 bg-[#E8F0FC]"
             >
-              <div className="max-w-4xl mx-auto px-4 py-3">
+              <div className="max-w-4xl mx-auto px-4 py-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">📎</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span>📎</span>
                     <span className="font-medium text-[#111111]">{attachedFile.fileName}</span>
-                    <span className="text-sm text-[#111111]/60">
+                    <span className="text-[#111111]/60">
                       ({attachedFile.isCode ? attachedFile.language : attachedFile.fileType?.toUpperCase()})
                     </span>
                   </div>
                   <button
                     onClick={handleFileRemoved}
-                    className="text-sm text-[#111111]/60 hover:text-[#111111] underline"
+                    className="text-xs text-[#111111]/60 hover:text-[#111111] underline"
                   >
                     Remove
                   </button>
                 </div>
-                {attachedFile.summary && (
-                  <p className="text-sm text-[#111111]/70 mt-2 line-clamp-2">
-                    {attachedFile.summary}
-                  </p>
-                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Input Area */}
+        {/* Input Area with File Attachment Button */}
         <ChatInput 
           onSend={handleSend} 
           disabled={isLoading} 
           placeholder={attachedFile ? `Ask about ${attachedFile.fileName}...` : 'Type your message...'}
+          leftSlot={
+            <FileAttachmentButton
+              onFileProcessed={handleFileProcessed}
+              onFileRemoved={handleFileRemoved}
+              attachedFile={attachedFile}
+              disabled={isLoading}
+            />
+          }
         />
       </div>
     </PageWrapper>
