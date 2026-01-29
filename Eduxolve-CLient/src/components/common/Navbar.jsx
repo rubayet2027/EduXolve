@@ -201,7 +201,7 @@ function Navbar() {
               {user?.photoURL ? (
                 <img
                   src={user.photoURL}
-                  alt={user.displayName || 'Profile'}
+                  alt={user.displayName?.split(' ')[0] || 'Profile'}
                   className="w-9 h-9 border-2 border-[#111111] rounded-full object-cover"
                 />
               ) : (
@@ -210,7 +210,7 @@ function Navbar() {
                 </div>
               )}
               <span className="text-sm font-medium text-[#111111] hidden lg:block">
-                {user?.displayName || user?.email?.split('@')[0] || 'Student'}
+                {user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student'}
               </span>
             </div>
 
@@ -273,7 +273,7 @@ function Navbar() {
                   {user?.photoURL ? (
                     <img
                       src={user.photoURL}
-                      alt={user.displayName || 'Profile'}
+                      alt={user.displayName?.split(' ')[0] || 'Profile'}
                       className="w-12 h-12 border-2 border-[#111111] rounded-full object-cover"
                     />
                   ) : (
@@ -283,10 +283,10 @@ function Navbar() {
                   )}
                   <div>
                     <p className="font-bold text-[#111111]">
-                      {user?.displayName || 'Student'}
+                      {user?.displayName?.split(' ')[0] || 'Student'}
                     </p>
                     <p className="text-sm text-[#111111]/60">
-                      {user?.email?.split('@')[0]}
+                      {user?.email}
                     </p>
                   </div>
                 </div>
