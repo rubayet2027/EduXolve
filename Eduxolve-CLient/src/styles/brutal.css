@@ -1,0 +1,39 @@
+/* Soft Neubrutalism Utility Styles */
+
+/* Base brutal style - thick border + hard offset shadow */
+.brutal {
+  border: 2px solid #111111;
+  box-shadow: 4px 4px 0 #111111;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Hover state - lift effect */
+.brutal-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #111111;
+}
+
+/* Press/Active state - pressed down effect */
+.brutal-press:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* Combined brutal interactive element */
+.brutal-interactive {
+  border: 2px solid #111111;
+  box-shadow: 4px 4px 0 #111111;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brutal-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #111111;
+}
+
+.brutal-interactive:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
