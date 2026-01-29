@@ -103,6 +103,31 @@ router.delete(
 );
 
 /**
+ * @route   DELETE /api/content/clear
+ * @desc    Clear all content for demo purposes
+ * @access  Public (for demo only - should be protected in production)
+ */
+router.delete(
+  '/clear',
+  async (req, res) => {
+    try {
+      const Content = require('../models/Content');
+      const result = await Content.deleteMany({});
+      
+      res.json({
+        success: true,
+        message: `Cleared ${result.deletedCount} content items`
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to clear content'
+      });
+    }
+  }
+);
+
+/**
  * @route   POST /api/content/seed
  * @desc    Seed dummy content for demo (Public - for demo only)
  * @access  Public (for demo purposes)
@@ -225,7 +250,8 @@ router.post(
         }
       ];
 
-      const inserted = await Content.insertMany(dummyContent);
+      // Use insertMany with ordered: false to skip duplicates
+      const inserted = await Content.insertMany(dummyContent, { ordered: false });
       
       console.log(`✅ Seeded ${inserted.length} dummy content items`);
       
@@ -239,10 +265,11 @@ router.post(
         }
       });
     } catch (error) {
-      console.error('❌ Seed error:', error.message);
+      console.error('❌ Seed error:', error.message, error.stack);
       res.status(500).json({
         success: false,
-        message: 'Failed to seed content'
+        message: 'Failed to seed content',
+        error: error.message
       });
     }
   }
