@@ -4,6 +4,7 @@
 
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { IoDocument, IoRefresh, IoChatbubble, IoChatbubbles, IoInformationCircle } from 'react-icons/io5'
 import { BrutalButton } from '../ui'
 import ValidationBadge from './ValidationBadge'
 
@@ -38,17 +39,17 @@ function OutputPanel({ output, isLoading, contentType }) {
   if (!output && !isLoading) {
     return (
       <div className="
-        bg-[#F5F5F0]
+        bg-[#FFF9E8]
         border-2 border-[#111111]
-        rounded-xl
-        shadow-[4px_4px_0_#111111]
+        rounded-2xl
+        shadow-[3px_3px_0px_#111111]
         p-6
         h-full
         flex items-center justify-center
       ">
         <div className="text-center">
-          <div className="w-16 h-16 bg-[#E8E8E4] border-2 border-[#111111] rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">📄</span>
+          <div className="w-16 h-16 bg-white border-2 border-[#111111] rounded-xl shadow-[2px_2px_0px_#111111] flex items-center justify-center mx-auto mb-5">
+            <IoDocument size={32} style={{ color: '#007AFF' }} />
           </div>
           <h3 className="text-lg font-bold text-[#111111] mb-2">
             Generated content will appear here
@@ -67,17 +68,17 @@ function OutputPanel({ output, isLoading, contentType }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
         className="
-          bg-[#F5F5F0]
+          bg-[#FFF9E8]
           border-2 border-[#111111]
-          rounded-xl
-          shadow-[4px_4px_0_#111111]
+          rounded-2xl
+          shadow-[3px_3px_0px_#111111]
           p-6
           h-full
         "
       >
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Validation badge skeleton */}
           <motion.div 
             className="w-48 h-8 bg-[#E8E8E4] rounded-lg"
@@ -151,21 +152,21 @@ function OutputPanel({ output, isLoading, contentType }) {
   // Output state
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+      transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
       className="
-        bg-[#F5F5F0]
+        bg-[#FFF9E8]
         border-2 border-[#111111]
-        rounded-xl
-        shadow-[4px_4px_0_#111111]
+        rounded-2xl
+        shadow-[3px_3px_0px_#111111]
         p-6
         h-full
         overflow-y-auto
       "
     >
       {/* Validation Badge */}
-      <div className="mb-4">
+      <div className="mb-5">
         <ValidationBadge status={output.validationStatus} />
       </div>
 
@@ -222,8 +223,9 @@ function OutputPanel({ output, isLoading, contentType }) {
                 p-3
                 text-sm
                 text-[#111111]/80
+                flex items-start gap-2
               ">
-                💡 {section.note}
+                <IoInformationCircle size={16} style={{ color: '#FF9500' }} className="mt-0.5 shrink-0" /> {section.note}
               </div>
             )}
           </div>
@@ -240,9 +242,9 @@ function OutputPanel({ output, isLoading, contentType }) {
             {output.sources.map((source, index) => (
               <span
                 key={index}
-                className="px-2 py-1 text-xs bg-white border-2 border-[#111111] rounded-lg"
+                className="px-2 py-1 text-xs bg-white border-2 border-[#111111] rounded-lg flex items-center gap-1"
               >
-                📄 {source}
+                <IoDocument size={12} style={{ color: '#007AFF' }} /> {source}
               </span>
             ))}
           </div>
@@ -254,23 +256,23 @@ function OutputPanel({ output, isLoading, contentType }) {
         <BrutalButton
           variant="neutral"
           onClick={handleAskToRefine}
-          className="px-4 py-2 text-sm"
+          className="px-4 py-2 text-sm flex items-center gap-1"
         >
-          🔄 Ask AI to refine
+          <IoRefresh size={14} style={{ color: '#007AFF' }} /> Ask AI to refine
         </BrutalButton>
         <BrutalButton
           variant="neutral"
           onClick={handleExplain}
-          className="px-4 py-2 text-sm"
+          className="px-4 py-2 text-sm flex items-center gap-1"
         >
-          💬 Explain this
+          <IoChatbubble size={14} style={{ color: '#34C759' }} /> Explain this
         </BrutalButton>
         <BrutalButton
           variant="primary"
           onClick={handleSendToChat}
-          className="px-4 py-2 text-sm"
+          className="px-4 py-2 text-sm flex items-center gap-1"
         >
-          🤖 Send to Chat
+          <IoChatbubbles size={14} /> Send to Chat
         </BrutalButton>
       </div>
     </motion.div>

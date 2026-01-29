@@ -124,50 +124,26 @@ function ManageContent() {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-[#FAFAF7]">
-        {/* Header */}
-        <header className="border-b-2 border-[#111111] bg-white">
-          <div className="max-w-5xl mx-auto px-6 py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="font-bold text-2xl text-[#111111]">
-                  Manage Content
-                </h1>
-                <p className="text-[#111111]/60 text-sm mt-1">
-                  View and edit course materials
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <BrutalButton
-                  variant="primary"
-                  onClick={() => navigate('/admin/upload')}
-                >
-                  + Upload New
-                </BrutalButton>
-                <button
-                  onClick={() => navigate('/admin')}
-                  className="
-                    px-4 py-2
-                    text-sm font-medium
-                    text-[#111111]
-                    bg-white
-                    border-2 border-[#111111]
-                    rounded-lg
-                    shadow-[2px_2px_0_#111111]
-                    transition-all duration-150
-                    hover:-translate-x-0.5 hover:-translate-y-0.5
-                    hover:shadow-[4px_4px_0_#111111]
-                    cursor-pointer
-                  "
-                >
-                  ← Dashboard
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
-
         {/* Main Content */}
         <main className="max-w-5xl mx-auto px-6 py-8">
+          {/* Page Title */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-bold text-2xl text-[#111111]">
+                Manage Content
+              </h1>
+              <p className="text-[#111111]/60 text-sm mt-1">
+                View and edit course materials
+              </p>
+            </div>
+            <BrutalButton
+              variant="primary"
+              onClick={() => navigate('/admin/upload')}
+            >
+              + Upload New
+            </BrutalButton>
+          </div>
+
           {/* Success Message */}
           <AnimatePresence>
             {successMessage && (
@@ -180,8 +156,8 @@ function ManageContent() {
                   mb-6 p-4
                   bg-[#6BCB77]
                   border-2 border-[#111111]
-                  rounded-xl
-                  shadow-[4px_4px_0_#111111]
+                  rounded-2xl
+                  shadow-[4px_4px_0px_#111111]
                   flex items-center gap-3
                 "
               >

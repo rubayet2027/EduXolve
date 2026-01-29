@@ -9,6 +9,7 @@
  */
 
 import { motion } from 'framer-motion'
+import { IoDocument } from 'react-icons/io5'
 import ActionButtons from './ActionButtons'
 
 function ChatMessage({ message, onAction }) {
@@ -20,14 +21,14 @@ function ChatMessage({ message, onAction }) {
   const messageVariants = {
     hidden: { 
       opacity: 0, 
-      y: 16,
+      y: 10,
     },
     visible: { 
       opacity: 1, 
       y: 0,
       transition: {
-        duration: 0.25,
-        ease: [0.25, 0.1, 0.25, 1], // Custom ease-out
+        duration: 0.22,
+        ease: [0.16, 1, 0.3, 1],
       }
     }
   }
@@ -64,12 +65,12 @@ function ChatMessage({ message, onAction }) {
         className={`
           max-w-[85%] md:max-w-[75%]
           border-2 border-[#111111]
-          rounded-xl
-          shadow-[3px_3px_0_#111111]
+          rounded-2xl
+          shadow-[2px_2px_0px_#111111]
           p-4
           ${isUser 
             ? 'bg-white' 
-            : 'bg-[#E8F5E9]'
+            : 'bg-[#E8F5EC]'
           }
         `}
       >
@@ -122,9 +123,9 @@ function ChatMessage({ message, onAction }) {
                   {message.sources.map((source, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 text-xs bg-white border-2 border-[#111111] rounded-lg"
+                      className="px-2 py-1 text-xs bg-white border-2 border-[#111111] rounded-lg flex items-center gap-1"
                     >
-                      📄 {source}
+                      <IoDocument size={12} style={{ color: '#007AFF' }} /> {source}
                     </span>
                   ))}
                 </div>

@@ -36,18 +36,18 @@ function MetadataForm({ onSubmit, isSubmitting }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Content Type */}
       <div className="flex flex-col gap-2">
-        <label className="font-semibold text-[#111111]">
+        <label className="font-bold text-[#111111]">
           Content Type
         </label>
         <div className="flex gap-4">
           <label
             className={`
               flex items-center gap-3 px-4 py-3
-              border-2 border-[#111111] rounded-xl
-              cursor-pointer transition-all duration-150
+              border-2 border-[#111111] rounded-2xl
+              cursor-pointer transition-all duration-150 ease-out
               ${formData.contentType === 'theory' 
-                ? 'bg-[#FFD93D] shadow-[4px_4px_0_#111111]' 
-                : 'bg-white hover:bg-gray-50'}
+                ? 'bg-[#FFD93D] shadow-[4px_4px_0px_#111111]' 
+                : 'bg-white shadow-[2px_2px_0px_#111111] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_#111111]'}
             `}
           >
             <input
@@ -58,16 +58,16 @@ function MetadataForm({ onSubmit, isSubmitting }) {
               onChange={handleChange('contentType')}
               className="w-4 h-4 accent-[#111111]"
             />
-            <span className="font-medium">Theory</span>
+            <span className="font-bold">Theory</span>
           </label>
           <label
             className={`
               flex items-center gap-3 px-4 py-3
-              border-2 border-[#111111] rounded-xl
-              cursor-pointer transition-all duration-150
+              border-2 border-[#111111] rounded-2xl
+              cursor-pointer transition-all duration-150 ease-out
               ${formData.contentType === 'lab' 
-                ? 'bg-[#6BCB77] shadow-[4px_4px_0_#111111]' 
-                : 'bg-white hover:bg-gray-50'}
+                ? 'bg-[#6BCB77] shadow-[4px_4px_0px_#111111]' 
+                : 'bg-white shadow-[2px_2px_0px_#111111] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_#111111]'}
             `}
           >
             <input
@@ -78,7 +78,7 @@ function MetadataForm({ onSubmit, isSubmitting }) {
               onChange={handleChange('contentType')}
               className="w-4 h-4 accent-[#111111]"
             />
-            <span className="font-medium">Lab</span>
+            <span className="font-bold">Lab</span>
           </label>
         </div>
       </div>

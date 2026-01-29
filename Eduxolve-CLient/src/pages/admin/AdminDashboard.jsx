@@ -11,8 +11,6 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BrutalCard from '../../components/ui/BrutalCard'
 import PageWrapper from '../../components/common/PageWrapper'
-import { logout } from '../../services/auth.service'
-import { useAuthStore } from '../../store'
 
 const adminActions = [
   {
@@ -68,9 +66,11 @@ function AdminActionCard({ action, onClick, index }) {
         className={`
           ${action.color}
           cursor-pointer
-          transition-all duration-150
-          hover:-translate-x-0.5 hover:-translate-y-0.5
-          hover:shadow-[6px_6px_0_#111111]
+          transition-all duration-150 ease-out
+          hover:-translate-y-0.5 hover:-translate-x-0.5
+          hover:shadow-[6px_6px_0px_#111111]
+          active:translate-y-0.5 active:translate-x-0.5
+          active:shadow-[0px_0px_0px_#111111]
           ${action.placeholder ? 'opacity-60' : ''}
         `}
         onClick={onClick}
@@ -93,7 +93,7 @@ function AdminActionCard({ action, onClick, index }) {
 
         {/* CTA */}
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-[#111111]">
+          <span className="font-bold text-[#111111]">
             {action.cta}
           </span>
           <svg className="w-5 h-5 text-[#111111]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,6 @@ function AdminActionCard({ action, onClick, index }) {
 
 function AdminDashboard() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
 
   const handleCardClick = (action) => {
     if (!action.placeholder) {
@@ -125,74 +124,21 @@ function AdminDashboard() {
     }
   }
 
-  const handleLogout = async () => {
-    try {
-      await logout()
-      navigate('/login')
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }
-
   return (
     <PageWrapper>
       <div className="min-h-screen bg-[#FAFAF7]">
-      {/* Header */}
-      <header className="border-b-2 border-[#111111] bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-bold text-2xl text-[#111111]">
-                Admin Dashboard
-              </h1>
-              <p className="text-[#111111]/60 text-sm mt-1">
-                Logged in as {user?.email || 'Admin'}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="
-                  px-4 py-2
-                  text-sm font-medium
-                  text-[#111111]
-                  bg-white
-                  border-2 border-[#111111]
-                  rounded-lg
-                  shadow-[2px_2px_0_#111111]
-                  transition-all duration-150
-                  hover:-translate-x-0.5 hover:-translate-y-0.5
-                  hover:shadow-[4px_4px_0_#111111]
-                  cursor-pointer
-                "
-              >
-                ← Student View
-              </button>
-              <button
-                onClick={handleLogout}
-                className="
-                  px-4 py-2
-                  text-sm font-medium
-                  text-[#111111]
-                  bg-[#FF6B6B]
-                  border-2 border-[#111111]
-                  rounded-lg
-                  shadow-[2px_2px_0_#111111]
-                  transition-all duration-150
-                  hover:-translate-x-0.5 hover:-translate-y-0.5
-                  hover:shadow-[4px_4px_0_#111111]
-                  cursor-pointer
-                "
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* Page Title */}
+        <div className="mb-10">
+          <h1 className="font-bold text-2xl text-[#111111]">
+            Admin Dashboard
+          </h1>
+          <p className="text-[#111111]/60 text-sm mt-1">
+            Manage course content and platform settings
+          </p>
+        </div>
+
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           {[

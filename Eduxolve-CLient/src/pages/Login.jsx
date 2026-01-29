@@ -102,12 +102,12 @@ function Login() {
 
   return (
     <PageWrapper>
-      <div className="min-h-screen bg-[#FAFAF7] flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center p-6">
         <motion.div 
           className="w-full max-w-md"
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Back to home link */}
           <Link
@@ -130,8 +130,8 @@ function Login() {
           Back to home
         </Link>
 
-        <BrutalCard>
-          <div className="flex flex-col gap-6">
+        <BrutalCard className="bg-[#E8F0FC]">
+          <div className="flex flex-col gap-7">
             {/* Header */}
             <div className="text-center">
               <h1 className="text-2xl font-bold text-[#111111] mb-2">
@@ -152,8 +152,8 @@ function Login() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="p-4 bg-[#FF6B6B]/20 border-2 border-[#FF6B6B] rounded-xl"
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  className="p-4 bg-[#FFF0EC] border-2 border-[#FF6B6B] rounded-xl"
                 >
                   <p className="text-[#111111] text-sm font-medium flex items-center gap-2">
                     <svg className="w-5 h-5 text-[#FF6B6B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

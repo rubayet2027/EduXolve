@@ -1,2 +1,5 @@
 export { default as PageWrapper } from './PageWrapper'
 export { default as AnimatedEllipsis } from './AnimatedEllipsis'
+export { default as Footer } from './Footer'
+export { default as Navbar } from './Navbar'
+export { default as ProtectedRoute } from './ProtectedRoute'

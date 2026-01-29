@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { IoSearch, IoInformationCircle } from 'react-icons/io5'
 import { BrutalButton } from '../components/ui'
 import { SearchBar, SearchResultCard, SearchSkeleton } from '../components/search'
 import PageWrapper from '../components/common/PageWrapper'
@@ -77,47 +78,21 @@ function Search() {
 
   return (
     <PageWrapper>
-      <div className="min-h-screen bg-[#FAFAF7]">
-        {/* Header */}
-        <header className="border-b-2 border-[#111111] bg-white">
-          <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
-            {/* Back Button */}
-            <BrutalButton
-              variant="neutral"
-              onClick={() => navigate('/dashboard')}
-              className="px-3 py-2"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </BrutalButton>
-
-            {/* Title */}
-            <div>
-              <h1 className="text-xl font-bold text-[#111111]">
-                Search Course Materials
-              </h1>
-              <p className="text-sm text-[#111111]/60">
-                Find slides, PDFs, and lab code using natural language
-              </p>
-            </div>
-          </div>
-        </header>
-
+      <div className="min-h-screen bg-[#FAF8F5]">
         {/* Main Content */}
-        <main className="max-w-4xl mx-auto px-6 py-10">
+        <main className="max-w-4xl mx-auto px-6 py-12">
+          {/* Page Title */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-[#111111]">
+              Search Course Materials
+            </h1>
+            <p className="text-sm text-[#111111]/60 mt-1">
+              Find slides, PDFs, and lab code using natural language
+            </p>
+          </div>
+
           {/* Search Bar Section */}
-          <section className="mb-10">
+          <section className="mb-12">
             <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           </section>
 
@@ -136,10 +111,10 @@ function Search() {
             {/* Results */}
             {!isLoading && results.length > 0 && (
               <>
-                <p className="text-sm text-[#111111]/60 mb-4">
+                <p className="text-sm text-[#111111]/60 mb-5">
                   Found {results.length} results
                 </p>
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {results.map((result, index) => (
                     <SearchResultCard
                       key={result.id}
@@ -155,7 +130,7 @@ function Search() {
             {!isLoading && hasSearched && results.length === 0 && (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-[#E8E8E4] border-2 border-[#111111] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">🔍</span>
+                  <IoSearch size={28} style={{ color: '#8E8E93' }} />
                 </div>
                 <h3 className="text-lg font-bold text-[#111111] mb-2">
                   No results found
@@ -168,9 +143,9 @@ function Search() {
 
             {/* Initial State */}
             {!isLoading && !hasSearched && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-[#FFD93D] border-2 border-[#111111] rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">💡</span>
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-[#FFF0D9] border-2 border-[#111111] rounded-xl shadow-[2px_2px_0px_#111111] flex items-center justify-center mx-auto mb-5">
+                  <IoInformationCircle size={28} style={{ color: '#FF9500' }} />
                 </div>
                 <h3 className="text-lg font-bold text-[#111111] mb-2">
                   Search your course materials
@@ -180,9 +155,9 @@ function Search() {
                 </p>
 
                 {/* Example Searches */}
-                <div className="mt-6">
-                  <p className="text-sm text-[#111111]/50 mb-3">Try searching for:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
+                <div className="mt-8">
+                  <p className="text-sm text-[#111111]/50 mb-4">Try searching for:</p>
+                  <div className="flex flex-wrap gap-3 justify-center">
                     {[
                       'How do stacks work?',
                       'Binary tree traversal',
@@ -194,16 +169,16 @@ function Search() {
                         className="
                           px-4 py-2
                           text-sm
-                          bg-white
+                          bg-[#E8F0FC]
                           text-[#111111]
                           border-2 border-[#111111]
                           rounded-lg
-                          shadow-[2px_2px_0_#111111]
-                          hover:-translate-x-0.5 hover:-translate-y-0.5
-                          hover:shadow-[3px_3px_0_#111111]
-                          active:translate-x-0 active:translate-y-0
-                          active:shadow-none
-                          transition-all duration-150
+                          shadow-[2px_2px_0px_#111111]
+                          hover:-translate-y-0.5 hover:-translate-x-0.5
+                          hover:shadow-[3px_3px_0px_#111111]
+                          active:translate-y-0 active:translate-x-0
+                          active:shadow-[0px_0px_0px_#111111]
+                          transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
                           cursor-pointer
                         "
                       >
@@ -216,15 +191,6 @@ function Search() {
             )}
           </section>
         </main>
-
-        {/* Footer */}
-        <footer className="border-t-2 border-[#111111] mt-auto">
-          <div className="max-w-4xl mx-auto px-6 py-4 text-center">
-            <p className="text-sm text-[#111111]/50">
-              Powered by semantic search over your course materials
-            </p>
-          </div>
-        </footer>
       </div>
     </PageWrapper>
   )

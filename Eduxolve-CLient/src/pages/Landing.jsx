@@ -1,24 +1,29 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { IoBook, IoSearch, IoSparkles } from 'react-icons/io5'
 import { BrutalCard, BrutalButton } from '../components/ui'
 import PageWrapper from '../components/common/PageWrapper'
+import heroImage from '../assets/EduXolveHero.jpeg'
 
 // Feature data for the three brutal cards
 const features = [
   {
     title: 'Organized Course Materials',
     description: 'Access structured learning content tailored to your university courses, all in one place.',
-    icon: '📚',
+    icon: IoBook,
+    iconColor: '#FF9500',
   },
   {
     title: 'Intelligent Semantic Search',
     description: 'Find exactly what you need with AI-powered search that understands context and meaning.',
-    icon: '🔍',
+    icon: IoSearch,
+    iconColor: '#007AFF',
   },
   {
     title: 'AI-Generated Validated Content',
     description: 'Get reliable, verified learning materials generated and reviewed by advanced AI systems.',
-    icon: '✨',
+    icon: IoSparkles,
+    iconColor: '#AF52DE',
   },
 ]
 
@@ -28,19 +33,19 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.12,
     },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
-      ease: 'easeOut',
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
 }
@@ -54,20 +59,24 @@ function Landing() {
 
   return (
     <PageWrapper>
-      <div className="min-h-screen bg-[#FAFAF7]">
+      <div className="min-h-screen bg-[#FAF8F5]">
         {/* Hero Section */}
         <motion.section
-          className="px-6 py-20 md:py-32"
+          className="px-6 py-24 md:py-36 relative overflow-hidden"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
         >
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Logo/Brand */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <span className="text-2xl font-bold text-[#111111]">EduXolve</span>
-          </motion.div>
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          >
+            {/* Overlay for better text readability */}
+            <div className="absolute inset-0 bg-[#FAF8F5]/70" />
+          </div>
 
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           {/* Hero Title */}
           <motion.h1
             variants={itemVariants}
@@ -130,7 +139,7 @@ function Landing() {
 
       {/* Features Section */}
       <motion.section
-        className="px-6 py-16 bg-[#FAFAF7]"
+        className="px-6 py-20 bg-[#E8F5F0]"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-100px' }}
@@ -139,17 +148,19 @@ function Landing() {
         <div className="max-w-6xl mx-auto">
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-[#111111] text-center mb-12"
+            className="text-3xl md:text-4xl font-bold text-[#111111] text-center mb-14"
           >
             Why EduXolve?
           </motion.h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon
+              return (
               <motion.div key={index} variants={itemVariants}>
-                <BrutalCard className="h-full bg-white hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#111111] transition-all duration-150">
-                  <div className="flex flex-col items-center text-center gap-4">
-                    <span className="text-5xl">{feature.icon}</span>
+                <BrutalCard className="h-full bg-white hover:-translate-y-1 hover:shadow-[5px_5px_0px_#111111] active:translate-y-0.5 active:translate-x-0.5 active:shadow-[0px_0px_0px_#111111] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer">
+                  <div className="flex flex-col items-center text-center gap-5 py-2">
+                    <IconComponent size={48} style={{ color: feature.iconColor }} />
                     <h3 className="text-xl font-bold text-[#111111]">
                       {feature.title}
                     </h3>
@@ -159,19 +170,11 @@ function Landing() {
                   </div>
                 </BrutalCard>
               </motion.div>
-            ))}
+            )})
+            }
           </div>
         </div>
       </motion.section>
-
-      {/* Footer */}
-      <footer className="px-6 py-8 border-t-2 border-[#111111]">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-[#111111]/60 text-sm">
-            © 2026 EduXolve. Built for learners, by learners.
-          </p>
-        </div>
-      </footer>
     </div>
     </PageWrapper>
   )

@@ -22,7 +22,7 @@ const mockResponses = {
     actions: ["Try another example", "Explain the code", "Show in Java"]
   },
   summarize: {
-    text: "📝 Summary: Stacks\n\n• Definition: LIFO (Last-In-First-Out) data structure\n• Core operations: push, pop, peek, isEmpty\n• Time complexity: O(1) for all basic operations\n• Space complexity: O(n) where n = number of elements\n• Common uses: Undo systems, expression parsing, backtracking algorithms\n\nKey takeaway: Stacks are simple but powerful structures ideal for scenarios requiring reverse-order processing.",
+    text: "Summary: Stacks\n\n• Definition: LIFO (Last-In-First-Out) data structure\n• Core operations: push, pop, peek, isEmpty\n• Time complexity: O(1) for all basic operations\n• Space complexity: O(n) where n = number of elements\n• Common uses: Undo systems, expression parsing, backtracking algorithms\n\nKey takeaway: Stacks are simple but powerful structures ideal for scenarios requiring reverse-order processing.",
     sources: ["Course Summary - Week 3"],
     actions: ["Expand on time complexity", "Compare with queues", "Quiz me"]
   },
@@ -44,7 +44,7 @@ const suggestedFollowUps = [
 const welcomeMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: "Hello! I'm your Course Assistant for Data Structures. 👋\n\nI can help you:\n• Understand concepts from lectures and labs\n• Find relevant course materials\n• Generate study notes and examples\n\nWhat would you like to learn about today?",
+  content: "Hello! I'm your Course Assistant for Data Structures.\n\nI can help you:\n• Understand concepts from lectures and labs\n• Find relevant course materials\n• Generate study notes and examples\n\nWhat would you like to learn about today?",
   sources: [],
   actions: []
 }
@@ -125,13 +125,13 @@ function Chat() {
 
   return (
     <PageWrapper>
-      <div className="h-screen flex flex-col bg-[#FAFAF7]">
+      <div className="h-screen flex flex-col bg-[#FAF8F5]">
         {/* Header */}
         <ChatHeader />
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+          <div className="max-w-4xl mx-auto px-4 py-8 space-y-5">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -144,23 +144,23 @@ function Chat() {
             <AnimatePresence>
               {showFollowUps && (
                 <motion.div 
-                  className="flex flex-wrap gap-2 justify-center pt-4"
-                  initial={{ opacity: 0, y: 8 }}
+                  className="flex flex-wrap gap-2 justify-center pt-6"
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 >
                   {suggestedFollowUps.map((followUp, index) => (
                     <motion.div
                       key={followUp}
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.15, delay: index * 0.05 }}
+                      transition={{ duration: 0.18, delay: index * 0.04 }}
                     >
                       <BrutalButton
                         variant="neutral"
                         onClick={() => handleFollowUp(followUp)}
-                        className="px-4 py-2 text-sm bg-[#F5F5F5]"
+                        className="px-4 py-2 text-sm bg-[#F3EEFA]"
                       >
                         {followUp}
                       </BrutalButton>

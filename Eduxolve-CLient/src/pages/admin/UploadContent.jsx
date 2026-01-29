@@ -42,42 +42,18 @@ function UploadContent() {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-[#FAFAF7]">
-        {/* Header */}
-        <header className="border-b-2 border-[#111111] bg-white">
-          <div className="max-w-4xl mx-auto px-6 py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="font-bold text-2xl text-[#111111]">
-                  Upload Content
-                </h1>
-                <p className="text-[#111111]/60 text-sm mt-1">
-                  Add new course materials to the platform
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/admin')}
-                className="
-                  px-4 py-2
-                  text-sm font-medium
-                  text-[#111111]
-                  bg-white
-                  border-2 border-[#111111]
-                  rounded-lg
-                  shadow-[2px_2px_0_#111111]
-                  transition-all duration-150
-                  hover:-translate-x-0.5 hover:-translate-y-0.5
-                  hover:shadow-[4px_4px_0_#111111]
-                  cursor-pointer
-                "
-              >
-                ← Back to Dashboard
-              </button>
-            </div>
-          </div>
-        </header>
-
         {/* Main Content */}
         <main className="max-w-4xl mx-auto px-6 py-10">
+          {/* Page Title */}
+          <div className="mb-8">
+            <h1 className="font-bold text-2xl text-[#111111]">
+              Upload Content
+            </h1>
+            <p className="text-[#111111]/60 text-sm mt-1">
+              Add new course materials to the platform
+            </p>
+          </div>
+
           {/* Success Message */}
           <AnimatePresence>
             {showSuccess && (
@@ -90,15 +66,15 @@ function UploadContent() {
                   mb-6 p-4
                   bg-[#6BCB77]
                   border-2 border-[#111111]
-                  rounded-xl
-                  shadow-[4px_4px_0_#111111]
+                  rounded-2xl
+                  shadow-[4px_4px_0px_#111111]
                   flex items-center gap-3
                 "
               >
                 <svg className="w-6 h-6 text-[#111111]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className="font-semibold text-[#111111]">
+                <span className="font-bold text-[#111111]">
                   Content uploaded and indexed successfully! Redirecting...
                 </span>
               </motion.div>

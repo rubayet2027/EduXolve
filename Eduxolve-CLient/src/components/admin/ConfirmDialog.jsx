@@ -25,8 +25,8 @@ function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel, confirmTex
           relative
           bg-white
           border-2 border-[#111111]
-          rounded-xl
-          shadow-[8px_8px_0_#111111]
+          rounded-2xl
+          shadow-[8px_8px_0px_#111111]
           p-6
           mx-4
           max-w-md
@@ -50,18 +50,18 @@ function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel, confirmTex
           <button
             className={`
               px-6 py-3
-              font-semibold
+              font-bold
               text-[#111111]
               border-2 border-[#111111]
               rounded-xl
-              shadow-[4px_4px_0_#111111]
-              transition-all duration-150
-              hover:-translate-x-0.5 hover:-translate-y-0.5
-              hover:shadow-[6px_6px_0_#111111]
-              active:translate-x-0.5 active:translate-y-0.5
-              active:shadow-none
+              shadow-[4px_4px_0px_#111111]
+              transition-all duration-150 ease-out
+              hover:-translate-y-0.5 hover:-translate-x-0.5
+              hover:shadow-[6px_6px_0px_#111111]
+              active:translate-y-0.5 active:translate-x-0.5
+              active:shadow-[0px_0px_0px_#111111]
               cursor-pointer
-              ${confirmVariant === 'danger' ? 'bg-[#FF6B6B] hover:bg-[#FF8585]' : 'bg-[#FFD93D] hover:bg-[#FFE566]'}
+              ${confirmVariant === 'danger' ? 'bg-[#FF6B6B]' : 'bg-[#FFD93D]'}
             `}
             onClick={onConfirm}
           >

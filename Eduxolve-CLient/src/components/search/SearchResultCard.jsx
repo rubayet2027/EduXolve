@@ -4,28 +4,29 @@
 
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { IoChatbubbles, IoOpenOutline } from 'react-icons/io5'
 import { BrutalButton } from '../ui'
 
-// Type badge colors
+// Type badge colors - softer pastels
 const typeBadgeStyles = {
   theory: {
-    bg: 'bg-[#FFD93D]',
+    bg: 'bg-[#FFF0D9]',
     label: 'Theory'
   },
   lab: {
-    bg: 'bg-[#6BCB77]',
+    bg: 'bg-[#E8F5EC]',
     label: 'Lab'
   },
   code: {
-    bg: 'bg-[#4D96FF]',
+    bg: 'bg-[#E8F0FC]',
     label: 'Code'
   },
   note: {
-    bg: 'bg-[#FF6B6B]',
+    bg: 'bg-[#FFF0EC]',
     label: 'Note'
   },
   slide: {
-    bg: 'bg-[#A66CFF]',
+    bg: 'bg-[#F3EEFA]',
     label: 'Slides'
   }
 }
@@ -50,22 +51,22 @@ function SearchResultCard({ result, index }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.3,
-        delay: index * 0.08,
-        ease: 'easeOut'
+        duration: 0.22,
+        delay: index * 0.04,
+        ease: [0.16, 1, 0.3, 1]
       }}
       className="
         bg-white
         border-2 border-[#111111]
-        rounded-xl
-        shadow-[4px_4px_0_#111111]
+        rounded-2xl
+        shadow-[3px_3px_0px_#111111]
         p-5
-        hover:-translate-x-0.5 hover:-translate-y-0.5
-        hover:shadow-[6px_6px_0_#111111]
-        transition-all duration-150
+        hover:-translate-y-1
+        hover:shadow-[4px_4px_0px_#111111]
+        transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
       "
     >
       {/* Type Badge */}
@@ -76,6 +77,7 @@ function SearchResultCard({ result, index }) {
         text-[#111111]
         border-2 border-[#111111]
         rounded-lg
+        shadow-[2px_2px_0px_#111111]
         mb-3
         ${badgeStyle.bg}
       `}>
@@ -122,16 +124,16 @@ function SearchResultCard({ result, index }) {
         <BrutalButton
           variant="primary"
           onClick={handleAskAI}
-          className="px-4 py-2 text-sm"
+          className="px-4 py-2 text-sm flex items-center gap-1"
         >
-          🤖 Ask AI about this
+          <IoChatbubbles size={14} /> Ask AI about this
         </BrutalButton>
         <BrutalButton
           variant="neutral"
           onClick={handleOpenSource}
-          className="px-4 py-2 text-sm"
+          className="px-4 py-2 text-sm flex items-center gap-1"
         >
-          📄 Open source
+          <IoOpenOutline size={14} /> Open source
         </BrutalButton>
       </div>
     </motion.div>

@@ -9,11 +9,13 @@ import { BrutalButton } from '../ui'
 
 function ActionCard({ 
   icon, 
+  iconColor = '#111111',
   title, 
   description, 
   cta, 
   to, 
-  accentColor = '#FFD93D',
+  accentColor = '#FFF0D9',
+  buttonColor = '#FFD93D',
   index = 0 
 }) {
   const navigate = useNavigate()
@@ -24,36 +26,45 @@ function ActionCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ 
         duration: 0.25, 
-        delay: index * 0.06,
-        ease: [0.25, 0.1, 0.25, 1]
+        delay: index * 0.05,
+        ease: [0.16, 1, 0.3, 1]
       }}
       whileHover={{ 
-        y: -4,
-        boxShadow: '6px 6px 0 #111111',
-        transition: { duration: 0.15 }
+        y: -3,
+        boxShadow: '5px 5px 0px #111111',
+        transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] }
+      }}
+      whileTap={{
+        y: 1,
+        x: 1,
+        boxShadow: '0px 0px 0px #111111',
+        transition: { duration: 0.1 }
       }}
       onClick={handleClick}
+      style={{ backgroundColor: accentColor }}
       className="
-        bg-white
         border-2 border-[#111111]
-        rounded-xl
-        shadow-[4px_4px_0_#111111]
+        rounded-2xl
+        shadow-[3px_3px_0px_#111111]
         p-6
         cursor-pointer
-        transition-colors duration-150
+        transition-colors duration-200
         flex flex-col h-full
       "
     >
       {/* Icon Container */}
       <div 
-        className="w-14 h-14 border-2 border-[#111111] rounded-xl flex items-center justify-center mb-4"
-        style={{ backgroundColor: accentColor }}
+        className="w-14 h-14 bg-white border-2 border-[#111111] rounded-2xl shadow-[2px_2px_0px_#111111] flex items-center justify-center mb-5"
       >
-        <span className="text-3xl">{icon}</span>
+        {typeof icon === 'function' ? (
+          <span className="text-2xl">{icon({ size: 28, style: { color: iconColor } })}</span>
+        ) : (
+          <span className="text-3xl">{icon}</span>
+        )}
       </div>
 
       {/* Title */}
@@ -62,7 +73,7 @@ function ActionCard({
       </h3>
 
       {/* Description */}
-      <p className="text-[#111111]/70 mb-6 grow">
+      <p className="text-[#111111]/70 mb-8 grow">
         {description}
       </p>
 
@@ -70,7 +81,7 @@ function ActionCard({
       <BrutalButton 
         variant="primary"
         className="w-full"
-        style={{ backgroundColor: accentColor }}
+        style={{ backgroundColor: buttonColor }}
         onClick={(e) => {
           e.stopPropagation()
           handleClick()

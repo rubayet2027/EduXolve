@@ -22,8 +22,8 @@ function ContentCard({ content, onEdit, onDelete }) {
       className="
         bg-white
         border-2 border-[#111111]
-        rounded-xl
-        shadow-[4px_4px_0_#111111]
+        rounded-2xl
+        shadow-[4px_4px_0px_#111111]
         p-5
         flex flex-col sm:flex-row sm:items-center
         gap-4
@@ -38,9 +38,10 @@ function ContentCard({ content, onEdit, onDelete }) {
           <span
             className={`
               px-2 py-0.5
-              text-xs font-semibold uppercase
-              border border-[#111111]
+              text-xs font-bold uppercase
+              border-2 border-[#111111]
               rounded-md
+              shadow-[2px_2px_0px_#111111]
               shrink-0
               ${typeColors[content.type] || 'bg-gray-100'}
             `}
@@ -94,17 +95,17 @@ function ContentCard({ content, onEdit, onDelete }) {
         <button
           className="
             px-4 py-2
-            text-sm font-semibold
+            text-sm font-bold
             text-[#111111]
             bg-[#FF6B6B]
             border-2 border-[#111111]
             rounded-xl
-            shadow-[4px_4px_0_#111111]
-            transition-all duration-150
-            hover:-translate-x-0.5 hover:-translate-y-0.5
-            hover:shadow-[6px_6px_0_#111111]
-            active:translate-x-0.5 active:translate-y-0.5
-            active:shadow-none
+            shadow-[4px_4px_0px_#111111]
+            transition-all duration-150 ease-out
+            hover:-translate-y-0.5 hover:-translate-x-0.5
+            hover:shadow-[6px_6px_0px_#111111]
+            active:translate-y-0.5 active:translate-x-0.5
+            active:shadow-[0px_0px_0px_#111111]
             cursor-pointer
           "
           onClick={() => onDelete?.(content)}

@@ -56,12 +56,12 @@ function ChatInput({ onSend, disabled }) {
                 placeholder-[#111111]/40
                 border-2 border-[#111111]
                 rounded-xl
-                shadow-[3px_3px_0_#111111]
+                shadow-[2px_2px_0px_#111111]
                 outline-none
                 resize-none
-                transition-all duration-150
-                focus:-translate-x-0.5 focus:-translate-y-0.5
-                focus:shadow-[5px_5px_0_#111111]
+                transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
+                focus:-translate-y-0.5 focus:-translate-x-0.5
+                focus:shadow-[3px_3px_0px_#111111]
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
             />

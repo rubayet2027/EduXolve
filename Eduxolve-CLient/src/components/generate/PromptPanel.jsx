@@ -3,13 +3,14 @@
  */
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { IoDocument, IoLayers, IoCode, IoSparkles } from 'react-icons/io5'
 import { BrutalButton } from '../ui'
 
 // Content type options
 const contentTypes = [
-  { id: 'notes', label: 'Notes', icon: '📝' },
-  { id: 'slides', label: 'Slides', icon: '📊' },
-  { id: 'code', label: 'Lab Code', icon: '💻' }
+  { id: 'notes', label: 'Notes', icon: IoDocument, color: '#FF9500' },
+  { id: 'slides', label: 'Slides', icon: IoLayers, color: '#AF52DE' },
+  { id: 'code', label: 'Lab Code', icon: IoCode, color: '#007AFF' }
 ]
 
 // Programming language options (for Lab Code)
@@ -38,14 +39,14 @@ function PromptPanel({
 
   return (
     <div className="
-      bg-white
+      bg-[#E8F0FC]
       border-2 border-[#111111]
-      rounded-xl
-      shadow-[4px_4px_0_#111111]
+      rounded-2xl
+      shadow-[3px_3px_0px_#111111]
       p-6
       h-full
     ">
-      <form onSubmit={handleSubmit} className="flex flex-col h-full gap-6">
+      <form onSubmit={handleSubmit} className="flex flex-col h-full gap-7">
         {/* Section Title */}
         <div>
           <h2 className="text-lg font-bold text-[#111111] mb-1">
@@ -75,12 +76,12 @@ function PromptPanel({
               placeholder-[#111111]/40
               border-2 border-[#111111]
               rounded-xl
-              shadow-[3px_3px_0_#111111]
+              shadow-[2px_2px_0px_#111111]
               outline-none
               resize-none
-              transition-all duration-150
-              focus:-translate-x-0.5 focus:-translate-y-0.5
-              focus:shadow-[5px_5px_0_#111111]
+              transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
+              focus:-translate-y-0.5 focus:-translate-x-0.5
+              focus:shadow-[3px_3px_0px_#111111]
               disabled:opacity-50 disabled:cursor-not-allowed
             "
           />
@@ -92,7 +93,9 @@ function PromptPanel({
             Content Type
           </label>
           <div className="flex flex-wrap gap-2">
-            {contentTypes.map((type) => (
+            {contentTypes.map((type) => {
+              const IconComponent = type.icon
+              return (
               <button
                 key={type.id}
                 type="button"
@@ -100,22 +103,23 @@ function PromptPanel({
                 disabled={isLoading}
                 className={`
                   px-4 py-2
-                  text-sm font-semibold
+                  text-sm font-bold
                   border-2 border-[#111111]
                   rounded-lg
-                  transition-all duration-150
+                  transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
                   cursor-pointer
                   disabled:opacity-50 disabled:cursor-not-allowed
                   ${contentType === type.id
-                    ? 'bg-[#FFD93D] shadow-[2px_2px_0_#111111] -translate-x-0.5 -translate-y-0.5'
-                    : 'bg-white shadow-[2px_2px_0_#111111] hover:-translate-x-0.5 hover:-translate-y-0.5'
+                    ? 'bg-[#FFF0D9] shadow-[2px_2px_0px_#111111] -translate-y-0.5 -translate-x-0.5'
+                    : 'bg-white shadow-[2px_2px_0px_#111111] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_#111111]'
                   }
                 `}
               >
-                <span className="mr-2">{type.icon}</span>
+                <span className="mr-2 inline-flex items-center"><IconComponent size={16} style={{ color: type.color }} /></span>
                 {type.label}
               </button>
-            ))}
+            )})
+            }
           </div>
         </div>
 
@@ -134,15 +138,15 @@ function PromptPanel({
                   disabled={isLoading}
                   className={`
                     px-4 py-2
-                    text-sm font-semibold
+                    text-sm font-bold
                     border-2 border-[#111111]
                     rounded-lg
-                    transition-all duration-150
+                    transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
                     cursor-pointer
                     disabled:opacity-50 disabled:cursor-not-allowed
                     ${language === lang.id
-                      ? 'bg-[#4D96FF] text-white shadow-[2px_2px_0_#111111] -translate-x-0.5 -translate-y-0.5'
-                      : 'bg-white shadow-[2px_2px_0_#111111] hover:-translate-x-0.5 hover:-translate-y-0.5'
+                      ? 'bg-[#E8F5EC] shadow-[2px_2px_0px_#111111] -translate-y-0.5 -translate-x-0.5'
+                      : 'bg-white shadow-[2px_2px_0px_#111111] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_#111111]'
                     }
                   `}
                 >
@@ -175,7 +179,7 @@ function PromptPanel({
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   className="inline-block"
                 >
-                  ✨
+                  <IoSparkles size={20} />
                 </motion.span>
                 Generating...
               </motion.span>
@@ -186,8 +190,9 @@ function PromptPanel({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
+                className="flex items-center justify-center gap-2"
               >
-                ✨ Generate
+                <IoSparkles size={20} /> Generate
               </motion.span>
             )}
           </AnimatePresence>

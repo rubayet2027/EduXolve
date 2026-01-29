@@ -5,23 +5,27 @@
  */
 
 import { motion } from 'framer-motion'
+import { IoCheckmarkCircle, IoAlertCircle, IoCloseCircle } from 'react-icons/io5'
 
 function ValidationBadge({ status = 'grounded' }) {
   const badges = {
     grounded: {
-      icon: '✅',
+      icon: IoCheckmarkCircle,
+      iconColor: '#34C759',
       text: 'Grounded in course materials',
       bg: 'bg-[#E8F5E9]',
       border: 'border-[#6BCB77]'
     },
     review: {
-      icon: '⚠️',
+      icon: IoAlertCircle,
+      iconColor: '#FF9500',
       text: 'Needs review',
       bg: 'bg-[#FFF3E0]',
       border: 'border-[#FFB74D]'
     },
     error: {
-      icon: '❌',
+      icon: IoCloseCircle,
+      iconColor: '#FF3B30',
       text: 'Could not validate',
       bg: 'bg-[#FFEBEE]',
       border: 'border-[#FF6B6B]'
@@ -29,6 +33,7 @@ function ValidationBadge({ status = 'grounded' }) {
   }
 
   const badge = badges[status] || badges.grounded
+  const IconComponent = badge.icon
 
   return (
     <motion.div 
@@ -41,11 +46,12 @@ function ValidationBadge({ status = 'grounded' }) {
         ${badge.bg}
         border-2 ${badge.border}
         rounded-lg
-        font-semibold
+        shadow-[2px_2px_0px_#111111]
+        font-bold
         text-[#111111]
       `}
     >
-      <span className="text-lg">{badge.icon}</span>
+      <IconComponent size={18} style={{ color: badge.iconColor }} />
       <span className="text-sm">{badge.text}</span>
     </motion.div>
   )

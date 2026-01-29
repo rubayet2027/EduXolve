@@ -30,14 +30,15 @@ function BrutalInput({
           px-4 py-3
           bg-white
           text-[#111111]
-          placeholder-gray-400
+          placeholder-[#111111]/40
           border-2 border-[#111111]
           rounded-xl
-          shadow-[4px_4px_0_#111111]
+          shadow-[2px_2px_0px_#111111]
           outline-none
-          transition-all duration-150 ease-in-out
-          focus:-translate-x-0.5 focus:-translate-y-0.5
-          focus:shadow-[6px_6px_0_#111111]
+          transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
+          focus:-translate-y-0.5 focus:-translate-x-0.5
+          focus:shadow-[3px_3px_0px_#111111]
+          focus:border-[#111111]
           ${className}
         `}
         {...props}

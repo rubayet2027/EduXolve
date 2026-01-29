@@ -16,25 +16,29 @@ function BrutalButton({
   ...props 
 }) {
   const variants = {
-    primary: 'bg-[#FFD93D] hover:bg-[#FFE566]',
-    secondary: 'bg-[#6BCB77] hover:bg-[#7DD889]',
-    neutral: 'bg-white hover:bg-gray-50',
+    primary: 'bg-[#FFD93D]',
+    secondary: 'bg-[#6BCB77]',
+    neutral: 'bg-white',
+    danger: 'bg-[#FF6B6B]',
   }
 
   return (
     <button
       className={`
         px-6 py-3
-        font-semibold
+        font-bold
         text-[#111111]
         border-2 border-[#111111]
         rounded-xl
-        shadow-[4px_4px_0_#111111]
-        transition-all duration-150 ease-in-out
-        hover:-translate-x-0.5 hover:-translate-y-0.5
-        hover:shadow-[6px_6px_0_#111111]
-        active:translate-x-0.5 active:translate-y-0.5
-        active:shadow-none
+        shadow-[3px_3px_0px_#111111]
+        transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
+        hover:-translate-y-0.5 hover:-translate-x-0.5
+        hover:shadow-[4px_4px_0px_#111111]
+        active:translate-y-0.5 active:translate-x-0.5
+        active:shadow-[0px_0px_0px_#111111]
+        disabled:opacity-50 disabled:cursor-not-allowed
+        disabled:hover:translate-y-0 disabled:hover:translate-x-0
+        disabled:hover:shadow-[3px_3px_0px_#111111]
         cursor-pointer
         ${variants[variant] || variants.primary}
         ${className}

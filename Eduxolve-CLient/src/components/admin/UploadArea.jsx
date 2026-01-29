@@ -48,10 +48,10 @@ function UploadArea({ onFileSelect }) {
         relative
         border-2 border-dashed
         ${isDragging ? 'border-[#6BCB77] bg-[#6BCB77]/10' : 'border-[#111111] bg-[#FAFAF7]'}
-        rounded-xl
+        rounded-2xl
         p-12
         text-center
-        transition-colors duration-200
+        transition-colors duration-200 ease-out
         cursor-pointer
       `}
       onDragOver={handleDragOver}
@@ -87,16 +87,16 @@ function UploadArea({ onFileSelect }) {
       {/* Text */}
       {selectedFile ? (
         <div>
-          <p className="font-semibold text-[#111111] mb-2">
+          <p className="font-bold text-[#111111] mb-2">
             File selected:
           </p>
-          <p className="text-[#6BCB77] font-medium">
+          <p className="text-[#6BCB77] font-bold">
             {selectedFile.name}
           </p>
         </div>
       ) : (
         <div>
-          <p className="font-semibold text-[#111111] mb-2">
+          <p className="font-bold text-[#111111] mb-2">
             Drag & drop your file here
           </p>
           <p className="text-[#111111]/60 text-sm mb-4">

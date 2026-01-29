@@ -4,8 +4,6 @@
  */
 
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { BrutalButton } from '../components/ui'
 import { PromptPanel, OutputPanel } from '../components/generate'
 import PageWrapper from '../components/common/PageWrapper'
 
@@ -84,10 +82,10 @@ const mockOutputs = {
       {
         heading: 'Slide 4: Applications',
         bullets: [
-          '📝 Undo/Redo functionality',
-          '🌐 Browser history',
-          '🔄 Recursion call stack',
-          '📊 Expression evaluation'
+          'Undo/Redo functionality',
+          'Browser history',
+          'Recursion call stack',
+          'Expression evaluation'
         ]
       }
     ],
@@ -281,7 +279,6 @@ console.log(stack.isEmpty()); // false`,
 }
 
 function Generate() {
-  const navigate = useNavigate()
   const [prompt, setPrompt] = useState('')
   const [contentType, setContentType] = useState('notes')
   const [language, setLanguage] = useState('python')
@@ -309,46 +306,20 @@ function Generate() {
 
   return (
     <PageWrapper>
-      <div className="min-h-screen bg-[#FAFAF7] flex flex-col">
-        {/* Header */}
-        <header className="border-b-2 border-[#111111] bg-white shrink-0">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
-            {/* Back Button */}
-            <BrutalButton
-              variant="neutral"
-              onClick={() => navigate('/dashboard')}
-              className="px-3 py-2"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </BrutalButton>
-
-            {/* Title */}
-            <div>
-              <h1 className="text-xl font-bold text-[#111111]">
-                Generate Learning Materials
-              </h1>
-              <p className="text-sm text-[#111111]/60">
-                Create notes, slides, or lab code using course content
-              </p>
-            </div>
-          </div>
-        </header>
-
+      <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
         {/* Main Content - Two Column Layout */}
-        <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full min-h-150">
+        <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
+          {/* Page Title */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-[#111111]">
+              Generate Learning Materials
+            </h1>
+            <p className="text-sm text-[#111111]/60 mt-1">
+              Create notes, slides, or lab code using course content
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full min-h-150">
             {/* Left Panel - Prompt & Options */}
             <PromptPanel
               prompt={prompt}
@@ -369,15 +340,6 @@ function Generate() {
             />
           </div>
         </main>
-
-        {/* Footer */}
-        <footer className="border-t-2 border-[#111111] shrink-0">
-          <div className="max-w-7xl mx-auto px-6 py-4 text-center">
-            <p className="text-sm text-[#111111]/50">
-              Content is generated and validated against your course materials
-            </p>
-          </div>
-        </footer>
       </div>
     </PageWrapper>
   )

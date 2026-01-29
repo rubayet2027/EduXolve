@@ -4,13 +4,27 @@
 /* Soft Neubrutalism Global Styles */
 
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Balsamiq Sans", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Soft Pastel Palette */
+  --pastel-mint: #E8F5F0;
+  --pastel-sky: #E8F4FC;
+  --pastel-butter: #FFF9E8;
+  --pastel-peach: #FFF0EC;
+  --pastel-lilac: #F3EEFA;
+  --pastel-pink: #FCEEF0;
+  --pastel-cream: #FAF8F5;
+  --pastel-sage: #EDF5E8;
+  
+  /* Smooth easing */
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* Global background and text colors - Soft Neubrutalism */
@@ -29,8 +43,7 @@ body {
 /* Link styles */
 a {
   color: #111111;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
 }
 
 a:hover {

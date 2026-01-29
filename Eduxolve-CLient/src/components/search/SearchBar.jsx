@@ -32,16 +32,16 @@ function SearchBar({ onSearch, isLoading }) {
     <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
       <motion.div 
         className="flex flex-col sm:flex-row gap-3"
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
+        transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Search Input */}
         <div className="flex-1 relative">
           <motion.div 
             className="absolute left-4 top-1/2 -translate-y-1/2 text-[#111111]/40"
-            animate={{ scale: isFocused ? 1.1 : 1 }}
-            transition={{ duration: 0.15 }}
+            animate={{ scale: isFocused ? 1.05 : 1 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <svg
               className="w-5 h-5"
@@ -76,11 +76,11 @@ function SearchBar({ onSearch, isLoading }) {
               placeholder-[#111111]/40
               border-2 border-[#111111]
               rounded-xl
-              shadow-[4px_4px_0_#111111]
+              shadow-[3px_3px_0px_#111111]
               outline-none
-              transition-all duration-150 ease-out
+              transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
               focus:-translate-x-0.5 focus:-translate-y-0.5
-              focus:shadow-[6px_6px_0_#111111]
+              focus:shadow-[4px_4px_0px_#111111]
               focus:border-[#4D96FF]
               disabled:opacity-50 disabled:cursor-not-allowed
             `}
@@ -109,10 +109,10 @@ function SearchBar({ onSearch, isLoading }) {
 
       {/* Helper Text */}
       <motion.p 
-        className="text-center text-sm text-[#111111]/50 mt-3"
+        className="text-center text-sm text-[#111111]/50 mt-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.2 }}
+        transition={{ delay: 0.12, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
       >
         Search through lectures, labs, and course materials using natural language
       </motion.p>
