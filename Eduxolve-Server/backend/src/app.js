@@ -13,8 +13,26 @@ const app = express();
 // ===================
 
 // CORS - Enable cross-origin requests
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://eduxolve.web.app',
+  'https://eduxolve.firebaseapp.com',
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS blocked origin: ${origin}`);
+      callback(null, true); // Allow anyway for demo, change to callback(new Error('Not allowed by CORS')) for strict mode
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
