@@ -2,15 +2,18 @@
  * AdminDashboard - Main admin control center
  * 
  * Features:
+ * - Real-time stats from database
  * - Three action cards: Upload, Manage, Review
- * - Clean, structured layout
- * - Navigation to admin routes
+ * - Recent activity from content uploads
+ * - Colorful Neubrutalism design
  */
 
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BrutalCard from '../../components/ui/BrutalCard'
 import PageWrapper from '../../components/common/PageWrapper'
+import { contentApi } from '../../services/api'
 
 const adminActions = [
   {
@@ -23,7 +26,8 @@ const adminActions = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
       </svg>
     ),
-    color: 'bg-[#FFD93D]',
+    color: 'bg-[#FFF3CD]', // Light yellow
+    borderColor: 'border-[#FFD93D]',
     route: '/admin/upload',
   },
   {
@@ -36,7 +40,8 @@ const adminActions = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
       </svg>
     ),
-    color: 'bg-[#6BCB77]',
+    color: 'bg-[#D4EDDA]', // Light green
+    borderColor: 'border-[#6BCB77]',
     route: '/admin/content',
   },
   {
@@ -49,10 +54,19 @@ const adminActions = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    color: 'bg-[#4ECDC4]',
+    color: 'bg-[#D1F2EB]', // Light teal
+    borderColor: 'border-[#4ECDC4]',
     route: '/admin/review',
     placeholder: true,
   },
+]
+
+// Stat card colors - lighter pastel versions
+const statColors = [
+  { bg: 'bg-[#FFE5E5]', accent: 'bg-[#FF6B6B]', text: 'text-[#111111]' }, // Light red
+  { bg: 'bg-[#E0F7F6]', accent: 'bg-[#4ECDC4]', text: 'text-[#111111]' }, // Light teal
+  { bg: 'bg-[#FFF8E1]', accent: 'bg-[#FFD93D]', text: 'text-[#111111]' }, // Light yellow
+  { bg: 'bg-[#E8F5E9]', accent: 'bg-[#6BCB77]', text: 'text-[#111111]' }, // Light green
 ]
 
 function AdminActionCard({ action, onClick, index }) {
@@ -72,6 +86,7 @@ function AdminActionCard({ action, onClick, index }) {
           active:translate-y-0.5 active:translate-x-0.5
           active:shadow-[0px_0px_0px_#111111]
           ${action.placeholder ? 'opacity-60' : ''}
+          border-2 ${action.borderColor || 'border-[#111111]'}
         `}
         onClick={onClick}
       >
@@ -117,12 +132,86 @@ function AdminActionCard({ action, onClick, index }) {
 
 function AdminDashboard() {
   const navigate = useNavigate()
+  const [stats, setStats] = useState({
+    total: 0,
+    theory: 0,
+    lab: 0,
+    thisWeek: 0
+  })
+  const [recentContent, setRecentContent] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch content data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await contentApi.list({ limit: 100 })
+        
+        if (response.success && response.data) {
+          const content = response.data
+          
+          // Calculate stats
+          const total = content.length
+          const theory = content.filter(c => c.type === 'theory').length
+          const lab = content.filter(c => c.type === 'lab').length
+          
+          // Count items from this week
+          const oneWeekAgo = new Date()
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+          const thisWeek = content.filter(c => new Date(c.createdAt) >= oneWeekAgo).length
+          
+          setStats({ total, theory, lab, thisWeek })
+          
+          // Get recent 5 items sorted by date
+          const recent = [...content]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5)
+            .map(item => ({
+              action: 'Uploaded',
+              file: item.title || item.filename,
+              time: getRelativeTime(item.createdAt),
+              type: item.type || 'theory'
+            }))
+          
+          setRecentContent(recent)
+        }
+      } catch (error) {
+        console.error('Failed to fetch content:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Helper function for relative time
+  const getRelativeTime = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now - date
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+    
+    if (diffMins < 60) return `${diffMins} min ago`
+    if (diffHours < 24) return `${diffHours} hours ago`
+    if (diffDays === 1) return '1 day ago'
+    return `${diffDays} days ago`
+  }
 
   const handleCardClick = (action) => {
     if (!action.placeholder) {
       navigate(action.route)
     }
   }
+
+  const statsData = [
+    { label: 'Total Files', value: stats.total },
+    { label: 'Theory', value: stats.theory },
+    { label: 'Lab', value: stats.lab },
+    { label: 'This Week', value: stats.thisWeek },
+  ]
 
   return (
     <PageWrapper>
@@ -141,16 +230,24 @@ function AdminDashboard() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          {[
-            { label: 'Total Files', value: '47' },
-            { label: 'Theory', value: '23' },
-            { label: 'Lab', value: '24' },
-            { label: 'This Week', value: '5' },
-          ].map((stat) => (
-            <BrutalCard key={stat.label} className="text-center py-4">
-              <p className="text-3xl font-bold text-[#111111]">{stat.value}</p>
-              <p className="text-sm text-[#111111]/60 mt-1">{stat.label}</p>
-            </BrutalCard>
+          {statsData.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+            >
+              <BrutalCard className={`text-center py-5 ${statColors[index].bg} relative overflow-hidden`}>
+                {/* Accent strip on top */}
+                <div className={`absolute top-0 left-0 right-0 h-1 ${statColors[index].accent}`} />
+                <p className={`text-4xl font-bold ${statColors[index].text}`}>
+                  {loading ? '...' : stat.value}
+                </p>
+                <p className={`text-sm mt-1 ${statColors[index].text} opacity-70`}>
+                  {stat.label}
+                </p>
+              </BrutalCard>
+            </motion.div>
           ))}
         </div>
 
@@ -174,39 +271,44 @@ function AdminDashboard() {
           <h2 className="font-bold text-lg text-[#111111] mb-4">
             Recent Activity
           </h2>
-          <BrutalCard>
-            <div className="space-y-4">
-              {[
-                { action: 'Uploaded', file: 'Week5_BST_Slides.pdf', time: '2 hours ago', type: 'theory' },
-                { action: 'Updated', file: 'Lab3_LinkedList.py', time: '5 hours ago', type: 'lab' },
-                { action: 'Deleted', file: 'Draft_Notes.md', time: '1 day ago', type: 'theory' },
-                { action: 'Uploaded', file: 'Week5_Lab_Code.zip', time: '1 day ago', type: 'lab' },
-              ].map((activity, index) => (
-                <div
-                  key={index}
-                  className={`
-                    flex items-center justify-between py-3
-                    ${index < 3 ? 'border-b border-[#111111]/10' : ''}
-                  `}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`
-                        w-2 h-2 rounded-full
-                        ${activity.type === 'theory' ? 'bg-[#FFD93D]' : 'bg-[#6BCB77]'}
-                      `}
-                    />
-                    <span className="text-[#111111]">
-                      <span className="font-medium">{activity.action}</span>{' '}
-                      <span className="text-[#111111]/70">{activity.file}</span>
+          <BrutalCard className="bg-white">
+            {loading ? (
+              <div className="py-8 text-center text-[#111111]/50">
+                Loading recent activity...
+              </div>
+            ) : recentContent.length === 0 ? (
+              <div className="py-8 text-center text-[#111111]/50">
+                No content uploaded yet. Start by uploading some files!
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentContent.map((activity, index) => (
+                  <div
+                    key={index}
+                    className={`
+                      flex items-center justify-between py-3
+                      ${index < recentContent.length - 1 ? 'border-b border-[#111111]/10' : ''}
+                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`
+                          w-3 h-3 rounded-full
+                          ${activity.type === 'theory' ? 'bg-[#FFD93D]' : 'bg-[#6BCB77]'}
+                        `}
+                      />
+                      <span className="text-[#111111]">
+                        <span className="font-medium">{activity.action}</span>{' '}
+                        <span className="text-[#111111]/70">{activity.file}</span>
+                      </span>
+                    </div>
+                    <span className="text-sm text-[#111111]/50">
+                      {activity.time}
                     </span>
                   </div>
-                  <span className="text-sm text-[#111111]/50">
-                    {activity.time}
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </BrutalCard>
         </div>
       </main>
