@@ -23,7 +23,7 @@ const suggestedFollowUps = [
 const welcomeMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: "Hello! I'm your Course Assistant for Data Structures.\n\nI can help you:\n• Understand concepts from lectures and labs\n• Find relevant course materials\n• Generate study notes and examples\n• **Analyze uploaded files** (code, PDFs, documents)\n\nWhat would you like to learn about today?",
+  content: "Hello! I'm **Xolve** from EduXolve.\n\nI can help you:\n• Understand concepts from lectures and labs\n• Find relevant course materials\n• Generate study notes and examples\n• **Analyze uploaded files** (code, PDFs, documents)\n\nWhat would you like to learn about today?",
   sources: [],
   actions: []
 }

@@ -10,8 +10,33 @@
  * ⚠️ Raw files are NOT stored permanently - only temporary processing
  */
 
-const fs = require('fs');
 const path = require('path');
+
+// Lazy load pdf-parse and mammoth to avoid issues if not installed
+let pdfParse = null;
+let mammoth = null;
+
+const loadPdfParse = async () => {
+  if (!pdfParse) {
+    try {
+      pdfParse = require('pdf-parse');
+    } catch (e) {
+      console.warn('pdf-parse not available, using fallback extraction');
+    }
+  }
+  return pdfParse;
+};
+
+const loadMammoth = async () => {
+  if (!mammoth) {
+    try {
+      mammoth = require('mammoth');
+    } catch (e) {
+      console.warn('mammoth not available, using fallback extraction');
+    }
+  }
+  return mammoth;
+};
 
 // Maximum characters to extract (to prevent context overflow)
 const MAX_TEXT_LENGTH = 15000;
@@ -95,35 +120,36 @@ const detectFileType = (mimeType, filename) => {
 
 /**
  * Extract text from PDF file
- * Note: Basic extraction - for production, use pdf-parse or similar library
+ * Uses pdf-parse library for reliable extraction
  * @param {Buffer} buffer - File buffer
  * @returns {Promise<string>} Extracted text
  */
 const extractFromPDF = async (buffer) => {
   try {
-    // Try to find text content in PDF
-    // This is a simplified extraction - for production use pdf-parse
-    const content = buffer.toString('utf-8', 0, Math.min(buffer.length, 100000));
+    // Try to use pdf-parse first
+    const parser = await loadPdfParse();
+    if (parser) {
+      const data = await parser(buffer);
+      const extractedText = cleanExtractedText(data.text || '');
+      
+      if (extractedText.length < 50) {
+        return '[PDF content could not be fully extracted. The file may contain scanned images or complex formatting. Please copy-paste the relevant text directly.]';
+      }
+      return extractedText;
+    }
     
-    // Look for text streams in PDF
+    // Fallback: basic extraction
+    const content = buffer.toString('utf-8', 0, Math.min(buffer.length, 100000));
     const textMatches = content.match(/\(([\s\S]*?)\)/g) || [];
     let extractedText = textMatches
-      .map(match => match.slice(1, -1)) // Remove parentheses
+      .map(match => match.slice(1, -1))
       .filter(text => text.length > 2 && /[a-zA-Z]/.test(text))
       .join(' ');
     
-    // Also try to find BT/ET text blocks
-    const btMatches = content.match(/BT[\s\S]*?ET/g) || [];
-    btMatches.forEach(block => {
-      const textParts = block.match(/\(([\s\S]*?)\)/g) || [];
-      extractedText += ' ' + textParts.map(t => t.slice(1, -1)).join(' ');
-    });
-    
-    // Clean up the text
     extractedText = cleanExtractedText(extractedText);
     
     if (extractedText.length < 50) {
-      return '[PDF content could not be fully extracted. The file may contain scanned images or complex formatting. Please copy-paste the relevant text directly.]';
+      return '[PDF content could not be fully extracted. Please install pdf-parse for better PDF support, or copy-paste the text directly.]';
     }
     
     return extractedText;
@@ -135,16 +161,26 @@ const extractFromPDF = async (buffer) => {
 
 /**
  * Extract text from DOCX file
+ * Uses mammoth library for reliable extraction
  * @param {Buffer} buffer - File buffer
  * @returns {Promise<string>} Extracted text
  */
 const extractFromDOCX = async (buffer) => {
   try {
-    // DOCX is a ZIP file with XML content
-    // Simple extraction by finding text content
-    const content = buffer.toString('utf-8');
+    // Try to use mammoth first
+    const docxParser = await loadMammoth();
+    if (docxParser) {
+      const result = await docxParser.extractRawText({ buffer });
+      const extractedText = cleanExtractedText(result.value || '');
+      
+      if (extractedText.length < 20) {
+        return '[DOCX content could not be fully extracted. Please try saving as TXT or copy-paste the text.]';
+      }
+      return extractedText;
+    }
     
-    // Find text between XML tags
+    // Fallback: basic XML extraction
+    const content = buffer.toString('utf-8');
     const textMatches = content.match(/<w:t[^>]*>([^<]*)<\/w:t>/g) || [];
     let extractedText = textMatches
       .map(match => {
@@ -156,7 +192,7 @@ const extractFromDOCX = async (buffer) => {
     extractedText = cleanExtractedText(extractedText);
     
     if (extractedText.length < 20) {
-      return '[DOCX content could not be fully extracted. Please try saving as TXT or copy-paste the text.]';
+      return '[DOCX content could not be fully extracted. Please install mammoth for better DOCX support, or copy-paste the text.]';
     }
     
     return extractedText;
