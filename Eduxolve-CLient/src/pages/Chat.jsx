@@ -8,30 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChatHeader, ChatMessage, ChatInput } from '../components/chat'
 import { BrutalButton } from '../components/ui'
 import PageWrapper from '../components/common/PageWrapper'
-
-// Mock AI responses based on query type
-const mockResponses = {
-  default: {
-    text: "Based on the course materials, I can help explain this concept.\n\nA stack is a linear data structure that follows the Last-In-First-Out (LIFO) principle. Think of it like a stack of plates - you can only add or remove from the top.\n\nKey operations:\n• push(item) - Add to top\n• pop() - Remove from top\n• peek() - View top without removing\n• isEmpty() - Check if empty",
-    sources: ["Lecture 3 - Data Structures", "Lab Sheet 2 - Stack Implementation"],
-    actions: ["Explain more", "Generate notes", "Validate"]
-  },
-  example: {
-    text: "Here's a practical example of a stack in action:\n\n```python\nstack = []\n\n# Push elements\nstack.append('A')  # ['A']\nstack.append('B')  # ['A', 'B']\nstack.append('C')  # ['A', 'B', 'C']\n\n# Pop element\ntop = stack.pop()  # Returns 'C'\nprint(stack)       # ['A', 'B']\n```\n\nReal-world applications include:\n• Undo functionality in text editors\n• Browser back button history\n• Function call stack in programming",
-    sources: ["Lab Manual - Python Examples", "Lecture 4 - Applications"],
-    actions: ["Try another example", "Explain the code", "Show in Java"]
-  },
-  summarize: {
-    text: "Summary: Stacks\n\n• Definition: LIFO (Last-In-First-Out) data structure\n• Core operations: push, pop, peek, isEmpty\n• Time complexity: O(1) for all basic operations\n• Space complexity: O(n) where n = number of elements\n• Common uses: Undo systems, expression parsing, backtracking algorithms\n\nKey takeaway: Stacks are simple but powerful structures ideal for scenarios requiring reverse-order processing.",
-    sources: ["Course Summary - Week 3"],
-    actions: ["Expand on time complexity", "Compare with queues", "Quiz me"]
-  },
-  code: {
-    text: "Here's a complete Stack implementation in Python:\n\n```python\nclass Stack:\n    def __init__(self):\n        self.items = []\n    \n    def push(self, item):\n        self.items.append(item)\n    \n    def pop(self):\n        if not self.is_empty():\n            return self.items.pop()\n        raise IndexError(\"Stack is empty\")\n    \n    def peek(self):\n        if not self.is_empty():\n            return self.items[-1]\n        raise IndexError(\"Stack is empty\")\n    \n    def is_empty(self):\n        return len(self.items) == 0\n    \n    def size(self):\n        return len(self.items)\n```\n\nThis implementation uses Python's list as the underlying storage.",
-    sources: ["Lab Sheet 2 - Implementation Guide", "Reference Code Repository"],
-    actions: ["Explain each method", "Add error handling", "Convert to Java"]
-  }
-}
+import { chatApi } from '../services/api'
 
 // Suggested follow-ups shown after AI messages
 const suggestedFollowUps = [
@@ -52,6 +29,7 @@ const welcomeMessage = {
 function Chat() {
   const [messages, setMessages] = useState([welcomeMessage])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
   const messagesEndRef = useRef(null)
 
   // Scroll to bottom when messages change
@@ -59,17 +37,22 @@ function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Get appropriate mock response based on message content
-  const getMockResponse = (userMessage) => {
-    const lower = userMessage.toLowerCase()
-    if (lower.includes('example')) return mockResponses.example
-    if (lower.includes('summarize') || lower.includes('summary')) return mockResponses.summarize
-    if (lower.includes('code') || lower.includes('implement')) return mockResponses.code
-    return mockResponses.default
+  // Build chat history for API (exclude welcome message and loading states)
+  const buildChatHistory = () => {
+    return messages
+      .filter(msg => msg.id !== 'welcome' && !msg.isLoading)
+      .map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }))
   }
 
   // Handle sending a message
   const handleSend = async (content) => {
+    if (!content.trim()) return
+    
+    setError(null)
+    
     // Add user message
     const userMessage = {
       id: Date.now(),
@@ -87,26 +70,51 @@ function Chat() {
       isLoading: true
     }])
 
-    // Simulate AI thinking delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 500))
+    try {
+      // Call the chat API
+      const response = await chatApi.send({
+        message: content,
+        history: buildChatHistory()
+      })
 
-    // Get mock response
-    const response = getMockResponse(content)
-
-    // Replace loading with actual response
-    setMessages(prev => prev.map(msg => 
-      msg.id === loadingId
-        ? {
-            id: loadingId,
-            role: 'assistant',
-            content: response.text,
-            sources: response.sources,
-            actions: response.actions,
-            isLoading: false
-          }
-        : msg
-    ))
-    setIsLoading(false)
+      // Extract the reply from response
+      const aiReply = response.data || response
+      
+      // Replace loading with actual response
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingId
+          ? {
+              id: loadingId,
+              role: 'assistant',
+              content: aiReply.reply || aiReply.message || 'I received your message but couldn\'t generate a response.',
+              sources: aiReply.sources || [],
+              actions: aiReply.actions || [],
+              isLoading: false
+            }
+          : msg
+      ))
+    } catch (err) {
+      console.error('Chat error:', err)
+      
+      // Replace loading with error message
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingId
+          ? {
+              id: loadingId,
+              role: 'assistant',
+              content: "I'm sorry, I couldn't process your request. Please try again.",
+              sources: [],
+              actions: [],
+              isLoading: false,
+              isError: true
+            }
+          : msg
+      ))
+      
+      setError(err.message || 'Failed to send message')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Handle action button clicks
@@ -117,6 +125,17 @@ function Chat() {
   // Handle suggested follow-up clicks
   const handleFollowUp = (followUp) => {
     handleSend(followUp)
+  }
+  
+  // Clear chat session
+  const handleClearChat = async () => {
+    try {
+      await chatApi.clearSession()
+      setMessages([welcomeMessage])
+      setError(null)
+    } catch (err) {
+      console.error('Failed to clear chat:', err)
+    }
   }
 
   // Get the last message to check if we should show follow-ups

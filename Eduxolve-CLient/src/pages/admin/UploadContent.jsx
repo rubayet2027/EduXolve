@@ -4,7 +4,7 @@
  * Features:
  * - File upload area (drag & drop UI)
  * - Metadata form
- * - Save & Index functionality (mocked)
+ * - Save & Index functionality
  */
 
 import { useState } from 'react'
@@ -13,30 +13,68 @@ import { motion, AnimatePresence } from 'framer-motion'
 import BrutalCard from '../../components/ui/BrutalCard'
 import PageWrapper from '../../components/common/PageWrapper'
 import { UploadArea, MetadataForm } from '../../components/admin'
+import { contentApi } from '../../services/api'
 
 function UploadContent() {
   const navigate = useNavigate()
   const [selectedFile, setSelectedFile] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleFileSelect = (file) => {
     setSelectedFile(file)
+    setError(null)
   }
 
-  const handleSubmit = async (/* formData */) => {
+  const handleSubmit = async (formData) => {
+    // Validate
+    if (!selectedFile) {
+      setError('Please select a file to upload')
+      return
+    }
+    
+    if (!formData.topic?.trim()) {
+      setError('Please enter a topic')
+      return
+    }
+
     setIsSubmitting(true)
+    setError(null)
     
-    // Mock submission delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    // Show success message
-    setShowSuccess(true)
-    
-    // Navigate after brief delay
-    setTimeout(() => {
-      navigate('/admin/content')
-    }, 1500)
+    try {
+      // Create FormData for file upload
+      const uploadData = new FormData()
+      uploadData.append('file', selectedFile)
+      uploadData.append('type', formData.contentType || 'theory')
+      uploadData.append('topic', formData.topic)
+      
+      if (formData.week) {
+        uploadData.append('week', formData.week)
+      }
+      
+      if (formData.tags) {
+        // Split tags by comma and trim whitespace
+        const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+        uploadData.append('tags', JSON.stringify(tagsArray))
+      }
+      
+      // Call the upload API
+      await contentApi.upload(uploadData)
+      
+      // Show success message
+      setShowSuccess(true)
+      
+      // Navigate after brief delay
+      setTimeout(() => {
+        navigate('/admin/content')
+      }, 1500)
+    } catch (err) {
+      console.error('Upload error:', err)
+      setError(err.message || 'Failed to upload content. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -53,6 +91,30 @@ function UploadContent() {
               Add new course materials to the platform
             </p>
           </div>
+
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="
+                  mb-6 p-4
+                  bg-red-100
+                  border-2 border-red-500
+                  rounded-2xl
+                  flex items-center gap-3
+                "
+              >
+                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium text-red-700">{error}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Success Message */}
           <AnimatePresence>

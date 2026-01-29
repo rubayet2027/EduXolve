@@ -4,76 +4,70 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IoSearch, IoInformationCircle } from 'react-icons/io5'
+import { IoSearch, IoInformationCircle, IoWarning } from 'react-icons/io5'
 import { BrutalButton } from '../components/ui'
 import { SearchBar, SearchResultCard, SearchSkeleton } from '../components/search'
 import PageWrapper from '../components/common/PageWrapper'
-
-// Mock search results data
-const mockResults = [
-  {
-    id: 1,
-    type: 'theory',
-    title: 'Stacks – Lecture Slides (Week 3)',
-    snippet: 'A stack is a linear data structure that follows the Last-In-First-Out (LIFO) principle. Elements are added and removed from the same end, called the "top" of the stack. This makes stacks ideal for scenarios requiring reverse-order processing.',
-    source: 'Lecture 3 - Data Structures.pdf'
-  },
-  {
-    id: 2,
-    type: 'code',
-    title: 'Stack Implementation in Python',
-    snippet: 'Complete implementation of a Stack class with push, pop, peek, and isEmpty operations. This implementation uses a Python list as the underlying data structure.',
-    code: `class Stack:
-    def __init__(self):
-        self.items = []
-    
-    def push(self, item):
-        self.items.append(item)
-    
-    def pop(self):
-        return self.items.pop()`,
-    source: 'Lab Sheet 2 - stack_impl.py'
-  },
-  {
-    id: 3,
-    type: 'slide',
-    title: 'Stack Operations & Time Complexity',
-    snippet: 'All fundamental stack operations (push, pop, peek, isEmpty) have O(1) time complexity. This constant time performance makes stacks highly efficient for applications like expression evaluation and backtracking algorithms.',
-    source: 'Lecture 3 - Slide 15'
-  },
-  {
-    id: 4,
-    type: 'lab',
-    title: 'Lab Exercise: Balanced Parentheses',
-    snippet: 'Use a stack to check if parentheses in an expression are balanced. For each opening bracket, push to stack. For each closing bracket, check if it matches the top element and pop. Expression is balanced if stack is empty at the end.',
-    source: 'Lab 2 - Exercises.pdf'
-  },
-  {
-    id: 5,
-    type: 'note',
-    title: 'Common Stack Applications',
-    snippet: 'Real-world applications include: Browser back button (history), Undo functionality in text editors, Function call stack in programming languages, Expression evaluation (infix to postfix), and Depth-First Search in graphs.',
-    source: 'Course Notes - Chapter 4'
-  }
-]
+import { searchApi } from '../services/api'
 
 function Search() {
   const navigate = useNavigate()
   const [results, setResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  const [error, setError] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleSearch = async (query) => {
+    if (!query.trim()) return
+    
     setIsLoading(true)
     setHasSearched(true)
     setResults([])
+    setError(null)
+    setSearchQuery(query)
 
-    // Simulate search delay
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400))
+    try {
+      // Call the search API
+      const response = await searchApi.search({
+        query,
+        limit: 10
+      })
 
-    // Return mock results
-    setResults(mockResults)
-    setIsLoading(false)
+      // Extract results from response
+      const searchResults = response.data?.results || response.results || response.data || []
+      
+      // Map results to expected format
+      const mappedResults = searchResults.map((item, index) => ({
+        id: item._id || item.id || index,
+        type: item.type || 'theory',
+        title: item.title || item.contentTitle || 'Untitled',
+        snippet: item.text || item.snippet || item.content || '',
+        source: item.source || item.sourceName || item.filename || 'Course Materials',
+        code: item.code || null,
+        score: item.score || item.similarity || null,
+        contentId: item.contentId || null
+      }))
+
+      setResults(mappedResults)
+    } catch (err) {
+      console.error('Search error:', err)
+      setError(err.message || 'Search failed. Please try again.')
+      setResults([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle "Ask AI" action from search result
+  const handleAskAI = (result) => {
+    // Navigate to chat with context
+    navigate('/chat', { 
+      state: { 
+        initialMessage: `Tell me more about: ${result.title}`,
+        context: result.snippet 
+      } 
+    })
   }
 
   return (
@@ -98,6 +92,17 @@ function Search() {
 
           {/* Results Section */}
           <section>
+            {/* Error State */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-100 border-2 border-red-500 rounded-xl flex items-center gap-3">
+                <IoWarning size={24} className="text-red-500 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-red-700">{error}</p>
+                  <p className="text-sm text-red-600">Please check your connection and try again.</p>
+                </div>
+              </div>
+            )}
+
             {/* Loading State */}
             {isLoading && (
               <div className="space-y-4">
@@ -109,10 +114,10 @@ function Search() {
             )}
 
             {/* Results */}
-            {!isLoading && results.length > 0 && (
+            {!isLoading && !error && results.length > 0 && (
               <>
                 <p className="text-sm text-[#111111]/60 mb-5">
-                  Found {results.length} results
+                  Found {results.length} results for "{searchQuery}"
                 </p>
                 <div className="space-y-5">
                   {results.map((result, index) => (
@@ -120,6 +125,7 @@ function Search() {
                       key={result.id}
                       result={result}
                       index={index}
+                      onAskAI={() => handleAskAI(result)}
                     />
                   ))}
                 </div>
@@ -127,7 +133,7 @@ function Search() {
             )}
 
             {/* No Results State */}
-            {!isLoading && hasSearched && results.length === 0 && (
+            {!isLoading && !error && hasSearched && results.length === 0 && (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-[#E8E8E4] border-2 border-[#111111] rounded-xl flex items-center justify-center mx-auto mb-4">
                   <IoSearch size={28} style={{ color: '#8E8E93' }} />

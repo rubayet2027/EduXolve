@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { 
   Landing, 
@@ -26,12 +26,40 @@ function ScrollToTop() {
   return null
 }
 
+// Global auth error handler
+function AuthErrorHandler() {
+  const navigate = useNavigate()
+  
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      console.log('Unauthorized - redirecting to login')
+      navigate('/login', { replace: true })
+    }
+    
+    const handleForbidden = () => {
+      console.log('Forbidden - insufficient permissions')
+      navigate('/dashboard', { replace: true })
+    }
+    
+    window.addEventListener('auth:unauthorized', handleUnauthorized)
+    window.addEventListener('auth:forbidden', handleForbidden)
+    
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized)
+      window.removeEventListener('auth:forbidden', handleForbidden)
+    }
+  }, [navigate])
+  
+  return null
+}
+
 function App() {
   const location = useLocation()
 
   return (
     <>
       <ScrollToTop />
+      <AuthErrorHandler />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           {/* Public Routes */}

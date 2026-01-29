@@ -2,31 +2,15 @@
  * Auth Store (Zustand)
  * 
  * Single source of truth for authentication state.
+ * Note: Role is determined by the backend, not the frontend.
  * 
  * State:
  * - user: Firebase user object or null
- * - role: 'student' | 'admin' | null
+ * - role: 'student' | 'admin' | null (from backend)
  * - loading: boolean (true during initial auth check)
  */
 
 import { create } from 'zustand'
-
-// Predefined admin emails (temporary - will be replaced by backend verification)
-const ADMIN_EMAILS = [
-  'admin@university.edu',
-  'instructor@university.edu',
-  // Add more admin emails as needed
-]
-
-/**
- * Determine user role based on email
- * @param {string} email - User's email
- * @returns {'admin' | 'student'} User role
- */
-export const determineRole = (email) => {
-  if (!email) return 'student'
-  return ADMIN_EMAILS.includes(email.toLowerCase()) ? 'admin' : 'student'
-}
 
 const useAuthStore = create((set) => ({
   // State
@@ -48,6 +32,18 @@ const useAuthStore = create((set) => ({
     role: null,
     loading: false,
   }),
+  
+  // Check if user has a specific role
+  hasRole: (requiredRole) => {
+    const state = useAuthStore.getState()
+    return state.role === requiredRole
+  },
+  
+  // Check if user is admin
+  isAdmin: () => {
+    const state = useAuthStore.getState()
+    return state.role === 'admin'
+  },
 }))
 
 export default useAuthStore
