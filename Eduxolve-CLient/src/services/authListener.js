@@ -20,7 +20,15 @@ let unsubscribe = null
  */
 const syncWithBackend = async (user) => {
   try {
-    const response = await userApi.getMe()
+    // Add timeout to prevent hanging if backend is slow
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Backend sync timeout')), 5000)
+    )
+    
+    const response = await Promise.race([
+      userApi.getMe(),
+      timeoutPromise
+    ])
     
     if (response.success && response.data) {
       return {
@@ -67,7 +75,7 @@ export const initAuthListener = () => {
   unsubscribe = onAuthStateChanged(auth, async (user) => {
     if (user) {
       // User is signed in - sync with backend
-      setLoading(true)
+      console.log('Auth: Firebase user detected', user.email)
       
       try {
         const { userData, role } = await syncWithBackend(user)
@@ -75,7 +83,7 @@ export const initAuthListener = () => {
         console.log(`Auth: User signed in as ${role}`, userData.email)
       } catch (error) {
         console.error('Auth sync error:', error)
-        // Still allow user in with default role
+        // Still allow user in with default role - DON'T block login if backend fails
         const userData = {
           uid: user.uid,
           email: user.email,
@@ -84,6 +92,7 @@ export const initAuthListener = () => {
           emailVerified: user.emailVerified,
         }
         setAuth(userData, 'student')
+        console.log('Auth: Fallback - signed in as student')
       }
     } else {
       // User is signed out
